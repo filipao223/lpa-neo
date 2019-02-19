@@ -4,6 +4,10 @@
 
 #define MAX_TEMP 1024
 
+typedef struct Point{
+	int x, y;
+} Point;
+
 /*
 	6 (6 posiçoes possiveis)
 	4 5 - pos1
@@ -20,6 +24,18 @@
 	A resolução do problema é conseguir arranjar as posições que com essas ligações dêm o minimo de interseções possiveis
 */
 
+/*
+	p1-------------q1
+
+			p2
+			 \
+			  \
+			   \
+			    \
+				 \
+				  q2
+ */
+
 void print_input(int num_pos, int coord[], int num_dev, int num_int, int conn[]){
 	printf("Num positions: %d\n", num_pos);
 	printf("Coord: \n");
@@ -31,6 +47,30 @@ void print_input(int num_pos, int coord[], int num_dev, int num_int, int conn[])
 	for(int i=0; i<num_int*2; i+=2){
 		printf("%d %d\n", conn[i], conn[i+1]);
 	}
+}
+
+//Source: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf
+int check_intersection(int p1, int q1, int p2, int q2){
+
+}
+
+/*
+	Source: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf
+	Slope of segment (p1,p2): sigma = (y2-y1) / (x2-x1)
+	Slope of segment (p2,p3): tau = (y3-y2) / (x3-x2)
+
+	Returns:
+		1, if counterclockwise -> sigma < tau
+	   -1, if clockwise -> sigma > tau
+		0, if collinear -> sigma = tau
+*/
+int orientation_test(Point p1, Point p2, Point p3){
+	float sigma = (p2.y - p1.y) / (p2.x - p1.x);
+	float tau = (p3.y - p2.y) / (p3.x - p2.x);
+
+	if (sigma < tau) return 1;
+	else if (sigma > tau) return -1;
+	else return 0;
 }
 
 int main(){
