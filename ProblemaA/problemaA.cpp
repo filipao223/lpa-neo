@@ -9,6 +9,20 @@ typedef struct Point{
 } Point;
 
 /*
+	Simple function that returns the largest of two integers
+*/
+int max(int num1, int num2){
+	return num1>num2?num1:num2;
+}
+
+/*
+	Simple function that returns the smallest of two integers
+*/
+int min(int num1, int num2){
+	return num1>num2?num2:num1;
+}
+
+/*
 	6 (6 posiçoes possiveis)
 	4 5 - pos1
 	6 4 - pos2
@@ -49,28 +63,102 @@ void print_input(int num_pos, int coord[], int num_dev, int num_int, int conn[])
 	}
 }
 
-//Source: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf
-int check_intersection(int p1, int q1, int p2, int q2){
+/*
+	If the orientation of both segments is equal, then one may be partially or
+		completely overlapping another.
+	I.e.:
+		p1-------p2===q1-------q2
+	The segment (p2,q2) overlaps segment (p1,q1)
+	If p2.x is between (or is equal to) largest and smallest x-coord of (p1,q1) and p2.y is also
+		between largest and smallest y-coord of (p1,q1), then they intersect
+		(test for all points) TODO: optimize
 
+	Returns:
+		1, if they overlap
+		0, elsewise
+*/
+int check_overlapping(Point p1, Point q1, Point p2, Point q2){
+	//Point p1
+	if (p1.x <= max(p2.x, q2.x) && p1.x >= min(p2.x, q2.x) 
+		&& p1.y <= max(p2.y, q2.y) && p1.y >= min(p2.y, q2.y))
+		return 1;
+	//Point q1
+	else if (q1.x <= max(p2.x, q2.x) && q1.x >= min(p2.x, q2.x) 
+			&& q1.y <= max(p2.y, q2.y) && q1.y >= min(p2.y, q2.y))
+		return 1;
+	//Point p2
+	else if (p2.x <= max(p1.x, q1.x) && p2.x >= min(p1.x, q1.x) 
+			&& p2.y <= max(p1.y, q1.y) && p2.y >= min(p1.y, q1.y))
+		return 1;
+	//Point q2
+	else if (q2.x <= max(p1.x, q1.x) && q2.x >= min(p1.x, q1.x) 
+			&& q2.y <= max(p1.y, q1.y) && q2.y >= min(p1.y, q1.y))
+		return 1;
+	//Not overlapping
+	else return 0;
 }
 
 /*
 	Source: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf
 	Slope of segment (p1,p2): sigma = (y2-y1) / (x2-x1)
 	Slope of segment (p2,p3): tau = (y3-y2) / (x3-x2)
+	The orientation depends on whether the expression
+		exp = (y2−y1)*(x3−x2) − (y3−y2)*(x2−x1)
+		is positive, negative, or null.
 
 	Returns:
-		1, if counterclockwise -> sigma < tau
-	   -1, if clockwise -> sigma > tau
-		0, if collinear -> sigma = tau
+		1, if counterclockwise -> exp < 0
+	   -1, if clockwise -> exp > 0
+		0, if collinear -> exp = 0
 */
 int orientation_test(Point p1, Point p2, Point p3){
-	float sigma = (p2.y - p1.y) / (p2.x - p1.x);
-	float tau = (p3.y - p2.y) / (p3.x - p2.x);
-
-	if (sigma < tau) return 1;
-	else if (sigma > tau) return -1;
+	int value = (p2.y-p1.y)*(p3.x-p2.x) - (p3.y-p2.y)*(p2.x-p1.x);
+	if (value < 0) return 1;
+	else if (value > 0) return -1;
 	else return 0;
+}
+
+/*
+	Source: http://www.dcs.gla.ac.uk/~pat/52233/slides/Geometry1x1.pdf
+	Two segments (p1,q1) and (p2,q2) intersect if and only if
+	ONE of the following two conditions is verified
+
+	general case:
+		- (p1,q1,p2) and (p1,q1,q2) have different orientations
+				AND
+		- (p2,q2,p1) and (p2,q2,q1) have different orientations
+
+	special case
+		- (p1,q1,p2), (p1,q1,q2), (p2,q2,p1), and (p2,q2,q1) are all collinear
+				AND
+		- the x-projections of (p1,q1) and (p2,q2) intersect
+		- the y-projections of (p1,q1) and (p2,q2) intersect
+
+	Para se intersectarem, OU o caso geral OU o caso especial têm de ser verificados
+
+	Returns:
+		1, if lines intersect
+		-1, if they don't intersect
+		0, if they are collinear
+*/
+int check_intersection(Point p1, Point q1, Point p2, Point q2){
+	//General case
+	if ((orientation_test(p1, q1, p2) != orientation_test(p1,q1,q2))
+		&& (orientation_test(p2,q2,p1) != orientation_test(p2,q2,q1)))
+	{
+		//Lines intersect
+		return 1;
+	}
+	//Special case
+	else if((orientation_test(p1,q1,p2)==0) && (orientation_test(p1,q1,q2)==0)
+		&& (orientation_test(p2,q2,p1)==0) && (orientation_test(p2,q2,q1)==0)
+		&& check_overlapping(p1,q1,p2,q2)==1){
+			//Lines collinear (overlapping)
+			return 0;
+		}
+
+	//Lines do not intersect
+	return -1;
 }
 
 int main(){
@@ -108,7 +196,19 @@ int main(){
 			connections[i+1] = atoi(token);
 		}
 
-		print_input(num_pos, coord, num_devices, num_intersect, connections);
+		//Test input
+		//print_input(num_pos, coord, num_devices, num_intersect, connections);
+
+		//Test intersection detection
+		/*Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
+		Point p2 = {.x = 1, .y = 2}, q2 = {.x = 10, .y = 2};
+		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
+		p1 = {.x=10, .y=0}, q1 = {.x=0, .y=10}; 
+    	p2 = {.x=0, .y=0}, q2 = {.x=10, .y=10};
+		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
+		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0}; 
+    	p2 = {.x=1, .y=1}, q2 = {.x=10, .y=10};
+		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));*/
 	}
 
 	return 0;
