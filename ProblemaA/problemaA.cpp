@@ -6,6 +6,7 @@
 
 typedef struct Point{
 	int x, y;
+	int available;
 } Point;
 
 /*
@@ -50,11 +51,11 @@ int min(int num1, int num2){
 				  q2
  */
 
-void print_input(int num_pos, int coord[], int num_dev, int num_int, int conn[]){
+void print_input(int num_pos, Point coord[], int num_dev, int num_int, int conn[]){
 	printf("Num positions: %d\n", num_pos);
 	printf("Coord: \n");
-	for(int i=0; i<num_pos*2; i+=2){
-		printf("%d %d\n", coord[i], coord[i+1]);
+	for(int i=0; i<num_pos; i++){
+		printf("%d %d\n", coord[i].x, coord[i].y);
 	}
 	printf("Num of devices: %d\tNum of intersections: %d\n", num_dev, num_int);
 	printf("Connections: \n");
@@ -161,6 +162,31 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 	return -1;
 }
 
+/*
+	Ideia: recursao
+	D1 = Device 1
+
+	D1 <- recebe coordenada
+	⮡ D2 <- recebe coordenada
+		⮡ D3 <- recebe coordenada
+			⮡ ...
+				⮡ Dn <- ultimo ponto, ciclo atraves do resto das coord
+	:Inicia-se a recursao com uma coordenada para o Device 1, depois entra-se na funçao para o Device 2 e dá-lhe uma coord, ...
+	:Ao chegar ao ultimo device, calcular a interseçao de todos os pontos
+	:Guardar o numero de interseçoes, se o calculo ultrapassar o menor numero de interseçoes, guardar esse e cancelar
+		o resto dos calculos para estas coordenadas
+	:Se chegar ao fim dos calculos e não for maior que o menor numero, guardar esse como menor (melhor ate agora)
+	:Ao calcular todas as coordenadas para um determinado device (nivel recursivo), sair desse nivel, e incrementar o nivel acima
+		para a proxima coordenada, voltar a descer até ao ultimo device e recomeçar.
+	:TODO: como seria obvio, otimizar este processo (depois de a implementação ingenua estiver completa
+			(10 pontos são melhores que 0))
+*/
+void main_problem(int num_pos, Point coord[], int num_devices, int connections[]){
+	
+}
+
+int _recursive_step();
+
 int main(){
 
 	char temp[MAX_TEMP];
@@ -169,16 +195,18 @@ int main(){
 
 	while(fgets(temp, MAX_TEMP, stdin) != NULL){ //Keep reading until EOF (end-of-file (null))
 		int num_pos = atoi(temp); 	//Numero de posiçoes possiveis
-		int coord[num_pos*2]; 		//Coordenadas das posiçoes [x1, y1, x2, y2, ..., xNum_pos, yNum_pos]
+		Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
 
-		for(int i=0; i<num_pos*2; i+=2){
+		for(int i=0; i<num_pos; i++){
 			fgets(temp, MAX_TEMP, stdin);
 
 			token = strtok(temp, " "); //Divide string by " "
-			coord[i] = atoi(token);
+			coord[i].x = atoi(token);
 
 			token = strtok(NULL, " ");	//Get next token in divided string
-			coord[i+1] = atoi(token);
+			coord[i].y = atoi(token);
+
+			coord[i].available = 1;
 		}
 
 		fgets(temp, MAX_TEMP, stdin);
@@ -200,7 +228,7 @@ int main(){
 		//print_input(num_pos, coord, num_devices, num_intersect, connections);
 
 		//Test intersection detection
-		/*Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
+		Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
 		Point p2 = {.x = 1, .y = 2}, q2 = {.x = 10, .y = 2};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
 		p1 = {.x=10, .y=0}, q1 = {.x=0, .y=10}; 
@@ -208,7 +236,7 @@ int main(){
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
 		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0}; 
     	p2 = {.x=1, .y=1}, q2 = {.x=10, .y=10};
-		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));*/
+		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
 	}
 
 	return 0;
