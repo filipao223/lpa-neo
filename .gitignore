@@ -31,6 +31,10 @@
 # Executables
 *.exe
 *.out
+#Except test cases output files
+!out4.out
+!out5.out
+#done
 *.app
 *.i*86
 *.x86_64
