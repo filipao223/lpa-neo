@@ -143,6 +143,8 @@ int orientation_test(Point p1, Point p2, Point p3){
 		0, if they are collinear
 */
 int check_intersection(Point p1, Point q1, Point p2, Point q2){
+	//Check if all points are the same
+	if (p1.x==q1.x && p1.x==p2.x && p1.x==q2.x && p1.y==q1.y && p1.y==p2.y && p1.y==q2.y) return -1;
 	//General case
 	if ((orientation_test(p1, q1, p2) != orientation_test(p1,q1,q2))
 		&& (orientation_test(p2,q2,p1) != orientation_test(p2,q2,q1)))
@@ -155,7 +157,7 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 		&& (orientation_test(p2,q2,p1)==0) && (orientation_test(p2,q2,q1)==0)
 		&& check_overlapping(p1,q1,p2,q2)==1){
 			//Lines collinear (overlapping)
-			return 0;
+			return 1;
 		}
 
 	//Lines do not intersect
@@ -180,12 +182,37 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 		para a proxima coordenada, voltar a descer até ao ultimo device e recomeçar.
 	:TODO: como seria obvio, otimizar este processo (depois de a implementação ingenua estiver completa
 			(10 pontos são melhores que 0))
+	:TODO: verificar se ha mais que um device com o mesmo par de coordenadas
 */
-void main_problem(int num_pos, Point coord[], int num_devices, int connections[]){
-	
-}
+int _problemaA(int device_num, int num_devices, int num_intersections, int num_coord, Point coord[], int best, int connections[], Point device_coord[]){
+	if (device_num > num_devices) return -1;
+	else if (device_num == num_devices){
+		//Calculate intersections
+		int values = 0;
+		for(int j=0; j<num_intersections; j+=4){
+			int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
+						device_coord[connections[j+2]-1], device_coord[connections[j+3]-1]);
+			if (rc>-1) values+=rc;
 
-int _recursive_step();
+			//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
+			if(values > best) return best;
+		}
+
+		return values;
+	}
+	else{
+		for(int i=0; i<num_coord; i++){
+			//Update this device's coordinates
+			device_coord[device_num] = coord[i];
+			//More recursion
+			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, coord, best, connections, device_coord);
+			//If return value is -1, ignore
+			if ((value!=-1) && (value < best)) best=value;
+		}
+
+		return best;
+	}
+}
 
 int main(){
 
@@ -224,11 +251,18 @@ int main(){
 			connections[i+1] = atoi(token);
 		}
 
+		//Array que contem as coordenadas dos pontos de cada device
+		//device_coord[device1_Point, device2_Point, device3_Point, ..., deviceN_Point]
+		//Este array é mudado em cada nivel recursivo, de forma a atualizar as coordenadas
+		Point device_coord[num_devices];
+
 		//Test input
-		//print_input(num_pos, coord, num_devices, num_intersect, connections);
+		print_input(num_pos, coord, num_devices, num_intersect, connections);
+
+		printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, coord, __INT_MAX__, connections, device_coord));
 
 		//Test intersection detection
-		Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
+		/*Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
 		Point p2 = {.x = 1, .y = 2}, q2 = {.x = 10, .y = 2};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
 		p1 = {.x=10, .y=0}, q1 = {.x=0, .y=10}; 
@@ -236,7 +270,7 @@ int main(){
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
 		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0}; 
     	p2 = {.x=1, .y=1}, q2 = {.x=10, .y=10};
-		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
+		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));*/
 	}
 
 	return 0;
