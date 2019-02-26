@@ -80,20 +80,20 @@ void print_input(int num_pos, Point coord[], int num_dev, int num_int, int conn[
 */
 int check_overlapping(Point p1, Point q1, Point p2, Point q2){
 	//Point p1
-	if (p1.x <= max(p2.x, q2.x) && p1.x >= min(p2.x, q2.x) 
-		&& p1.y <= max(p2.y, q2.y) && p1.y >= min(p2.y, q2.y))
+	if (p1.x < max(p2.x, q2.x) && p1.x > min(p2.x, q2.x) 
+		&& p1.y < max(p2.y, q2.y) && p1.y > min(p2.y, q2.y))
 		return 1;
 	//Point q1
-	else if (q1.x <= max(p2.x, q2.x) && q1.x >= min(p2.x, q2.x) 
-			&& q1.y <= max(p2.y, q2.y) && q1.y >= min(p2.y, q2.y))
+	else if (q1.x < max(p2.x, q2.x) && q1.x > min(p2.x, q2.x) 
+			&& q1.y < max(p2.y, q2.y) && q1.y > min(p2.y, q2.y))
 		return 1;
 	//Point p2
-	else if (p2.x <= max(p1.x, q1.x) && p2.x >= min(p1.x, q1.x) 
-			&& p2.y <= max(p1.y, q1.y) && p2.y >= min(p1.y, q1.y))
+	else if (p2.x < max(p1.x, q1.x) && p2.x > min(p1.x, q1.x) 
+			&& p2.y < max(p1.y, q1.y) && p2.y > min(p1.y, q1.y))
 		return 1;
 	//Point q2
-	else if (q2.x <= max(p1.x, q1.x) && q2.x >= min(p1.x, q1.x) 
-			&& q2.y <= max(p1.y, q1.y) && q2.y >= min(p1.y, q1.y))
+	else if (q2.x < max(p1.x, q1.x) && q2.x > min(p1.x, q1.x) 
+			&& q2.y < max(p1.y, q1.y) && q2.y > min(p1.y, q1.y))
 		return 1;
 	//Not overlapping
 	else return 0;
@@ -185,19 +185,21 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 	:TODO: verificar se ha mais que um device com o mesmo par de coordenadas
 */
 int _problemaA(int device_num, int num_devices, int num_intersections, int num_coord, Point coord[], int best, int connections[], Point device_coord[]){
-	if (device_num > num_devices) return -1;
-	else if (device_num == num_devices){
+	if (device_num >= num_devices) return -1;
+	else if (device_num == num_devices-1){
 		//Calculate intersections
 		int values = 0;
-		for(int j=0; j<num_intersections; j+=4){
-			int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
-						device_coord[connections[j+2]-1], device_coord[connections[j+3]-1]);
+		for(int j=0; j<num_intersections; j+=2){
+			for(int m=j+2; m<num_intersections; m+=2){
+				int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
+						device_coord[connections[m]-1], device_coord[connections[m+1]-1]);
 			
-			if (rc==-1) return best; //All points have same coordinates
-			else values+=rc;
+				if (rc==-1) return best; //All points have same coordinates
+				else values+=rc;
 
-			//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
-			if(values > best) return best;
+				//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
+				if(values > best) return best;
+			}
 		}
 
 		/*if (values==0){
@@ -213,9 +215,14 @@ int _problemaA(int device_num, int num_devices, int num_intersections, int num_c
 	else{
 		for(int i=0; i<num_coord; i++){
 			//Update this device's coordinates
-			device_coord[device_num] = coord[i];
+			if (coord[i].available == 1){
+				device_coord[device_num] = coord[i];
+				coord[i].available = 0;
+			}
+			else continue;
 			//More recursion
 			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, coord, best, connections, device_coord);
+			coord[i].available = 1;
 			//If return value is -1, ignore
 			if ((value!=-1) && (value < best)) best=value;
 		}
