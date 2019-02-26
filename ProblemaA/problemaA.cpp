@@ -161,7 +161,7 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 		}
 
 	//Lines do not intersect
-	return -1;
+	return 0;
 }
 
 /*
@@ -192,11 +192,21 @@ int _problemaA(int device_num, int num_devices, int num_intersections, int num_c
 		for(int j=0; j<num_intersections; j+=4){
 			int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
 						device_coord[connections[j+2]-1], device_coord[connections[j+3]-1]);
-			if (rc>-1) values+=rc;
+			
+			if (rc==-1) return best; //All points have same coordinates
+			else values+=rc;
 
 			//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
 			if(values > best) return best;
 		}
+
+		/*if (values==0){
+			printf("========\nValues is 0\n");
+			for(int k=0; k<num_devices; k++){
+				printf("Device %d coordinates: x=%d; y=%d\n", k+1, device_coord[k].x, device_coord[k].y);
+			}
+			printf("========\n");
+		}*/
 
 		return values;
 	}
