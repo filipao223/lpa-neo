@@ -230,7 +230,7 @@ int _problemaA(int device_num, int num_devices, int num_intersections, int num_c
 			
 			//More recursion
 			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, best);
-			coord[i].available = 1;
+
 			//If return value is -1, ignore
 			if ((value!=-1) && (value < best)) best=value;
 		}
