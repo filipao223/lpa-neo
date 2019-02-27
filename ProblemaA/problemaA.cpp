@@ -9,6 +9,12 @@ typedef struct Point{
 	int available;
 } Point;
 
+//Global variables
+Point *coord;
+int *connections;
+Point *device_coord;
+int num_pos, num_coord, num_devices, num_intersect;
+
 /*
 	Simple function that returns the largest of two integers
 */
@@ -144,7 +150,7 @@ int orientation_test(Point p1, Point p2, Point p3){
 */
 int check_intersection(Point p1, Point q1, Point p2, Point q2){
 	//Check if all points are the same
-	if (p1.x==q1.x && p1.x==p2.x && p1.x==q2.x && p1.y==q1.y && p1.y==p2.y && p1.y==q2.y) return -1;
+	//if (p1.x==q1.x && p1.x==p2.x && p1.x==q2.x && p1.y==q1.y && p1.y==p2.y && p1.y==q2.y) return -1;
 	//General case
 	if ((orientation_test(p1, q1, p2) != orientation_test(p1,q1,q2))
 		&& (orientation_test(p2,q2,p1) != orientation_test(p2,q2,q1)))
@@ -161,6 +167,17 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 		}
 
 	//Lines do not intersect
+	return 0;
+}
+
+int check_same_coord(Point device_coord[], int num_devices){
+	for (int i=0; i<num_devices; i++){
+		for (int j=i+1; j<num_devices; j++){
+			if (device_coord[i].x == device_coord[j].x 
+				&& device_coord[i].y == device_coord[j].y) return 1;
+		}
+	}
+
 	return 0;
 }
 
@@ -184,44 +201,35 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 			(10 pontos são melhores que 0))
 	:TODO: verificar se ha mais que um device com o mesmo par de coordenadas
 */
-int _problemaA(int device_num, int num_devices, int num_intersections, int num_coord, Point coord[], int best, int connections[], Point device_coord[]){
+int _problemaA(int device_num, int num_devices, int num_intersections, int num_coord, int best){
 	if (device_num >= num_devices) return -1;
 	else if (device_num == num_devices-1){
 		//Calculate intersections
+		/*printf("====Device num: %d====", device_num);*/
 		int values = 0;
+		//Check if two or more devices have the same coordinates
+		if(check_same_coord(device_coord, num_devices) == 1) return best;
 		for(int j=0; j<num_intersections; j+=2){
 			for(int m=j+2; m<num_intersections; m+=2){
 				int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
 						device_coord[connections[m]-1], device_coord[connections[m+1]-1]);
-			
-				if (rc==-1) return best; //All points have same coordinates
-				else values+=rc;
+
+				if (rc>-1) values+=rc; //All points have same coordinates
 
 				//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
 				if(values > best) return best;
 			}
 		}
 
-		/*if (values==0){
-			printf("========\nValues is 0\n");
-			for(int k=0; k<num_devices; k++){
-				printf("Device %d coordinates: x=%d; y=%d\n", k+1, device_coord[k].x, device_coord[k].y);
-			}
-			printf("========\n");
-		}*/
-
 		return values;
 	}
 	else{
 		for(int i=0; i<num_coord; i++){
 			//Update this device's coordinates
-			if (coord[i].available == 1){
-				device_coord[device_num] = coord[i];
-				coord[i].available = 0;
-			}
-			else continue;
+			device_coord[device_num] = coord[i];
+			
 			//More recursion
-			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, coord, best, connections, device_coord);
+			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, best);
 			coord[i].available = 1;
 			//If return value is -1, ignore
 			if ((value!=-1) && (value < best)) best=value;
@@ -238,8 +246,9 @@ int main(){
 
 
 	while(fgets(temp, MAX_TEMP, stdin) != NULL){ //Keep reading until EOF (end-of-file (null))
-		int num_pos = atoi(temp); 	//Numero de posiçoes possiveis
-		Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
+		num_pos = atoi(temp); 	//Numero de posiçoes possiveis
+		//Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
+		coord = (Point*)malloc(num_pos * sizeof(Point));
 
 		for(int i=0; i<num_pos; i++){
 			fgets(temp, MAX_TEMP, stdin);
@@ -255,11 +264,12 @@ int main(){
 
 		fgets(temp, MAX_TEMP, stdin);
 		token = strtok(temp, " ");
-		int num_devices = atoi(token);
+		num_devices = atoi(token);
 		token = strtok(NULL, " ");
-		int num_intersect = atoi(token);
+		num_intersect = atoi(token);
 
-		int connections[num_intersect*2];
+		//int connections[num_intersect*2];
+		connections = (int*)malloc(num_intersect*2 * sizeof(int));
 		for(int i=0; i<num_intersect*2; i+=2){
 			fgets(temp, MAX_TEMP, stdin);
 			token = strtok(temp, " ");
@@ -271,12 +281,13 @@ int main(){
 		//Array que contem as coordenadas dos pontos de cada device
 		//device_coord[device1_Point, device2_Point, device3_Point, ..., deviceN_Point]
 		//Este array é mudado em cada nivel recursivo, de forma a atualizar as coordenadas
-		Point device_coord[num_devices];
+		//Point device_coord[num_devices];
+		device_coord = (Point*)malloc(num_devices * sizeof(Point));
 
 		//Test input
 		print_input(num_pos, coord, num_devices, num_intersect, connections);
 
-		printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, coord, __INT_MAX__, connections, device_coord));
+		printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, __INT_MAX__));
 
 		//Test intersection detection
 		/*Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
@@ -288,6 +299,11 @@ int main(){
 		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0}; 
     	p2 = {.x=1, .y=1}, q2 = {.x=10, .y=10};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));*/
+
+		//Free memory
+		free(coord);
+		free(device_coord);
+		free(connections);
 	}
 
 	return 0;
