@@ -510,3 +510,9 @@ docs/includes
 spec/fixtures/evil-files/
 out/
 /electron/
+
+#Build folder
+build/
+
+#Gprof
+*.png
