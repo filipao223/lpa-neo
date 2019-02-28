@@ -9,11 +9,16 @@ typedef struct Point{
 	int available;
 } Point;
 
-//Global variables
-Point *coord;
-int *connections;
-Point *device_coord;
-int num_pos, num_coord, num_devices, num_intersect;
+typedef struct Device{
+    Point p;
+    int id;
+    int available;
+}Device;
+
+typedef struct Linha{
+    Point p1,p2;
+    int inicio,fim;
+}Linha;
 
 /*
 	Simple function that returns the largest of two integers
@@ -86,20 +91,20 @@ void print_input(int num_pos, Point coord[], int num_dev, int num_int, int conn[
 */
 int check_overlapping(Point p1, Point q1, Point p2, Point q2){
 	//Point p1
-	if (p1.x < max(p2.x, q2.x) && p1.x > min(p2.x, q2.x) 
-		&& p1.y < max(p2.y, q2.y) && p1.y > min(p2.y, q2.y))
+	if (p1.x <= max(p2.x, q2.x) && p1.x >= min(p2.x, q2.x)
+		&& p1.y <= max(p2.y, q2.y) && p1.y >= min(p2.y, q2.y))
 		return 1;
 	//Point q1
-	else if (q1.x < max(p2.x, q2.x) && q1.x > min(p2.x, q2.x) 
-			&& q1.y < max(p2.y, q2.y) && q1.y > min(p2.y, q2.y))
+	else if (q1.x <= max(p2.x, q2.x) && q1.x >= min(p2.x, q2.x)
+			&& q1.y <= max(p2.y, q2.y) && q1.y >= min(p2.y, q2.y))
 		return 1;
 	//Point p2
-	else if (p2.x < max(p1.x, q1.x) && p2.x > min(p1.x, q1.x) 
-			&& p2.y < max(p1.y, q1.y) && p2.y > min(p1.y, q1.y))
+	else if (p2.x <= max(p1.x, q1.x) && p2.x >= min(p1.x, q1.x)
+			&& p2.y <= max(p1.y, q1.y) && p2.y >= min(p1.y, q1.y))
 		return 1;
 	//Point q2
-	else if (q2.x < max(p1.x, q1.x) && q2.x > min(p1.x, q1.x) 
-			&& q2.y < max(p1.y, q1.y) && q2.y > min(p1.y, q1.y))
+	else if (q2.x <= max(p1.x, q1.x) && q2.x >= min(p1.x, q1.x)
+			&& q2.y <= max(p1.y, q1.y) && q2.y >= min(p1.y, q1.y))
 		return 1;
 	//Not overlapping
 	else return 0;
@@ -149,10 +154,11 @@ int orientation_test(Point p1, Point p2, Point p3){
 		0, if they are collinear
 */
 int check_intersection(Point p1, Point q1, Point p2, Point q2){
-	//Check if all points are the same
-	//if (p1.x==q1.x && p1.x==p2.x && p1.x==q2.x && p1.y==q1.y && p1.y==p2.y && p1.y==q2.y) return -1;
+	//Check if all points are the sam
+
+	if((p1.x == p2.x && p1.y == p2.y) || (p1.x == q2.x && p1.x == q2.y) || (q1.x == p2.x && q1.y == p2.y) || (q1.x == q2.x && q1.y == q2.y)) return 0;
 	//General case
-	if ((orientation_test(p1, q1, p2) != orientation_test(p1,q1,q2))
+	else if ((orientation_test(p1, q1, p2) != orientation_test(p1,q1,q2))
 		&& (orientation_test(p2,q2,p1) != orientation_test(p2,q2,q1)))
 	{
 		//Lines intersect
@@ -167,17 +173,6 @@ int check_intersection(Point p1, Point q1, Point p2, Point q2){
 		}
 
 	//Lines do not intersect
-	return 0;
-}
-
-int check_same_coord(Point device_coord[], int num_devices){
-	for (int i=0; i<num_devices; i++){
-		for (int j=i+1; j<num_devices; j++){
-			if (device_coord[i].x == device_coord[j].x 
-				&& device_coord[i].y == device_coord[j].y) return 1;
-		}
-	}
-
 	return 0;
 }
 
@@ -201,42 +196,183 @@ int check_same_coord(Point device_coord[], int num_devices){
 			(10 pontos são melhores que 0))
 	:TODO: verificar se ha mais que um device com o mesmo par de coordenadas
 */
-int _problemaA(int device_num, int num_devices, int num_intersections, int num_coord, int best){
-	if (device_num >= num_devices) return -1;
-	else if (device_num == num_devices-1){
+int _problemaA(int device_num, int num_devices, int num_intersections, int num_coord, Point coord[], int best, int connections[], Point device_coord[]){
+	if (device_num > num_devices) return -1;
+	else if (device_num == num_devices){
 		//Calculate intersections
-		/*printf("====Device num: %d====", device_num);*/
 		int values = 0;
-		//Check if two or more devices have the same coordinates
-		if(check_same_coord(device_coord, num_devices) == 1) return best;
-		for(int j=0; j<num_intersections; j+=2){
-			for(int m=j+2; m<num_intersections; m+=2){
-				int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
-						device_coord[connections[m]-1], device_coord[connections[m+1]-1]);
+		for(int j=0; j<num_intersections; j+=4){
+			int rc = check_intersection(device_coord[connections[j]-1], device_coord[connections[j+1]-1],
+						device_coord[connections[j+2]-1], device_coord[connections[j+3]-1]);
 
-				if (rc>-1) values+=rc; //All points have same coordinates
+			if (rc==-1) return best; //All points have same coordinates
+			else values+=rc;
 
-				//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
-				if(values > best) return best;
-			}
+			//If we already have a best number of intersections and number of current intersections already surpasses best number, cancel
+			if(values > best) return best;
 		}
+
+		/*if (values==0){
+			printf("====7
+5 9
+7 8
+7 5
+6 2
+3 3
+2 5
+3 8
+5 4
+1 2
+1 3
+3 5
+2 4====\nValues is 0\n");
+			for(int k=0; k<num_devices; k++){
+				printf("Device %d coordinates: x=%d; y=%d\n", k+1, device_coord[k].x, device_coord[k].y);
+			}
+			printf("========\n");
+		}*/
 
 		return values;
 	}
 	else{
 		for(int i=0; i<num_coord; i++){
 			//Update this device's coordinates
-			device_coord[device_num] = coord[i];
-			
+			//if(coord[i].available == 1){
+                device_coord[device_num] = coord[i];
+              //  coord[i].available =0;
+			//}
 			//More recursion
-			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, best);
-
+			int value = _problemaA(device_num+1, num_devices, num_intersections, num_coord, coord, best, connections, device_coord);
 			//If return value is -1, ignore
-			if ((value!=-1) && (value < best)) best=value;
+			if ((value!=-1) && (value < best)){
+                best=value;
+                printf(" Best temp %d ", value);
+			}
 		}
 
 		return best;
 	}
+	return best;
+}
+
+
+int line_segment(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3){
+    if(coord_x2 <= max(coord_x1, coord_x3) && coord_x2 >= min(coord_x1, coord_x3) && coord_y2 <= max(coord_y1, coord_y3) && coord_y2 >= min(coord_y1,coord_y3)){
+        return 1;
+    }
+    return 0;
+}
+
+int orientacao(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3){
+    int aux = (coord_y2 - coord_y1)*(coord_x3 - coord_x2) - (coord_x2-coord_x1)*(coord_y3-coord_y2);
+    if(aux == 0){   //se e colinear
+        return 0;
+    }
+    if(aux > 0){
+        return 1;
+    }
+    else{
+        return 2;
+    }
+}
+
+
+int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3, int coord_x4, int coord_y4){
+
+	if(coord_x1 == coord_x3 && coord_y1 == coord_y3){
+        return 0;
+    }
+
+    if(coord_x1 == coord_x4 && coord_y1 == coord_y4){
+        return 0;
+    }
+
+    if(coord_x2 == coord_x3 && coord_y2 == coord_y3){
+        return 0;
+    }
+
+    if(coord_x2 == coord_x4 && coord_y2 == coord_y4){
+        return 0;
+    }
+
+    int o1 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x3, coord_y3);
+    int o2 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x4, coord_y4);
+    int o3 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x1, coord_y1);
+    int o4 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x2, coord_y2);
+
+    //caso geral
+    if( o1 != o2 && o3 != o4)
+        return 1;
+
+
+    if(o1 == 0 && line_segment(coord_x1, coord_y1, coord_x3, coord_y3, coord_x2, coord_y2))
+        return 1;
+    if(o2 == 0 && line_segment(coord_x1, coord_y1, coord_x4, coord_y4, coord_x2, coord_y2))
+        return 1;
+    if(o3 == 0 && line_segment(coord_x3, coord_y3, coord_x1, coord_y1, coord_x4, coord_y4))
+        return 1;
+    if(o4 == 0 && line_segment(coord_x3, coord_y3, coord_x2, coord_y2, coord_x4, coord_y4))
+        return 1;
+    return 0;
+}
+
+int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,int connections[],Point device_coord[],Point temp[],Linha linha[]){
+    if (device_num > num_devices) return -1;
+    else if(device_num == num_devices || device_num>=2 ){
+
+        int values = 0;
+        /*for(int i=0;i<num_devices;i++){
+            printf("%d %d, ",temp[i].x,temp[i].y);
+		}*/
+		//printf("\n");
+		for(int i=0;i<num_intersect;i++){
+                //printf("Inicio %d %d ", temp[linha[i].inicio].x,temp[linha[i].inicio].y);
+                //printf("Fim %d %d \n", temp[linha[i].fim].x,temp[linha[i].fim].y);
+                //printf("Inicio %d Pontos %d %d ",i, temp[linha[i].inicio-1].x,temp[linha[i].inicio-1].y);
+                //printf("Fim %d Pontos %d %d ",i, temp[linha[i].fim-1].x,temp[linha[i].fim-1].y);
+                linha[i].p1.x = temp[linha[i].inicio-1].x;
+                linha[i].p1.y = temp[linha[i].inicio-1].y;
+                linha[i].p2.x = temp[linha[i].fim-1].x;
+                linha[i].p2.y = temp[linha[i].fim-1].y;
+                //printf("L1 %d P1 %d , %d ",i,linha[i].p1.x,linha[i].p1.y);
+                //printf("L2 %d P2 %d , %d ",i,linha[i].p2.x,linha[i].p2.y);
+		}
+		//printf("\n");
+		for(int i=0;i<num_intersect;i++){
+            for(int j=i+1;j<num_intersect;j++){
+                //int rc = check_in(linha[i].p1,linha[i].p2,linha[j].p1,linha[j].p2);
+                int rc = check_interception(linha[i].p1.x,linha[i].p1.y,linha[i].p2.x,linha[i].p2.y,linha[j].p1.x,linha[j].p1.y,linha[j].p2.x,linha[j].p2.y);
+                //printf("Intersecoes %d\n",rc);
+                //printf("%d , %d \n",i,j);
+                values+=rc;
+                if(values >= best) return best;
+            }
+		}
+		
+		if (device_num==num_devices) return values;
+		else goto resume;
+		//printf("Intersecoes %d\n", values);
+    }
+    else{
+		resume:
+        for(int i = 0;i<=num_coord;i++){
+            if(device_coord[i].available ==1 ){
+                temp[device_num].x = device_coord[i].x;
+                temp[device_num].y = device_coord[i].y;
+                device_coord[i].available = 0;
+                int value = combination(device_num+1,num_devices,num_intersect,num_coord,best,connections,device_coord,temp,linha);
+                device_coord[i].available = 1;
+				if (value==0) return 0;
+
+                if ((value!=-1) && (value < best)){
+                    best = value;
+                    //printf(" Best temp %d ", value);
+                }
+            }
+        }
+        return best;
+    }
+    return -1;
 }
 
 int main(){
@@ -246,9 +382,8 @@ int main(){
 
 
 	while(fgets(temp, MAX_TEMP, stdin) != NULL){ //Keep reading until EOF (end-of-file (null))
-		num_pos = atoi(temp); 	//Numero de posiçoes possiveis
-		//Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
-		coord = (Point*)malloc(num_pos * sizeof(Point));
+		int num_pos = atoi(temp); 	//Numero de posiçoes possiveis
+		Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
 
 		for(int i=0; i<num_pos; i++){
 			fgets(temp, MAX_TEMP, stdin);
@@ -264,46 +399,58 @@ int main(){
 
 		fgets(temp, MAX_TEMP, stdin);
 		token = strtok(temp, " ");
-		num_devices = atoi(token);
+		int num_devices = atoi(token);
 		token = strtok(NULL, " ");
-		num_intersect = atoi(token);
+		int num_intersect = atoi(token);
 
-		//int connections[num_intersect*2];
-		connections = (int*)malloc(num_intersect*2 * sizeof(int));
+		int connections[num_intersect*2];
+		Point temporario[num_devices];
+		Linha linha[num_intersect];
+
+
+		for(int i=0;i<num_devices;i++){
+            temporario[i].available=1;
+		}
+
 		for(int i=0; i<num_intersect*2; i+=2){
 			fgets(temp, MAX_TEMP, stdin);
 			token = strtok(temp, " ");
 			connections[i] = atoi(token);
+			linha[i/2].inicio = atoi(token);
 			token = strtok(NULL, " ");
 			connections[i+1] = atoi(token);
+			linha[i/2].fim = atoi(token);
 		}
+
+		/*for(int i=0; i<num_intersect; i++){
+            printf("%d , %d \n",linha[i].inicio,linha[i].fim);
+		}*/
+
+		/*for(int i=0;i<num_devices;i++){
+            printf("%d %d \n",device[i].id,device[i].available);
+		}*/
 
 		//Array que contem as coordenadas dos pontos de cada device
 		//device_coord[device1_Point, device2_Point, device3_Point, ..., deviceN_Point]
 		//Este array é mudado em cada nivel recursivo, de forma a atualizar as coordenadas
-		//Point device_coord[num_devices];
-		device_coord = (Point*)malloc(num_devices * sizeof(Point));
 
 		//Test input
-		print_input(num_pos, coord, num_devices, num_intersect, connections);
+		//print_input(num_pos, coord, num_devices, num_intersect, connections);
 
-		printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, __INT_MAX__));
+		//printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, coord, __INT_MAX__, connections, device_coord));
+	
+		printf("%d\n",combination(0,num_devices,num_intersect,num_pos,__INT_MAX__,connections,coord,temporario,linha));
 
 		//Test intersection detection
 		/*Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
 		Point p2 = {.x = 1, .y = 2}, q2 = {.x = 10, .y = 2};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
-		p1 = {.x=10, .y=0}, q1 = {.x=0, .y=10}; 
+		p1 = {.x=10, .y=0}, q1 = {.x=0, .y=10};
     	p2 = {.x=0, .y=0}, q2 = {.x=10, .y=10};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));
-		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0}; 
+		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0};
     	p2 = {.x=1, .y=1}, q2 = {.x=10, .y=10};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));*/
-
-		//Free memory
-		free(coord);
-		free(device_coord);
-		free(connections);
 	}
 
 	return 0;
