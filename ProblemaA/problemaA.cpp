@@ -163,22 +163,23 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
     else if( device_num>2){
 
         int values = 0;
-		int max_index = -1;
+		//int max_index = -1;
+		int k=0;
         
 		for(int i=0;i<num_intersect;i++){
 				if ((device_num < num_devices) && (linha[i].inicio==device_num || linha[i].fim==device_num)){
 					//Stop making permutations
-					max_index = i;
-					break;
+					continue;
 				}
-                linha[i].p1.x = temp[linha[i].inicio-1].x;
-                linha[i].p1.y = temp[linha[i].inicio-1].y;
-                linha[i].p2.x = temp[linha[i].fim-1].x;
-                linha[i].p2.y = temp[linha[i].fim-1].y;
+                linha[k].p1.x = temp[linha[k].inicio-1].x;
+                linha[k].p1.y = temp[linha[k].inicio-1].y;
+                linha[k].p2.x = temp[linha[k].fim-1].x;
+                linha[k].p2.y = temp[linha[k].fim-1].y;
+				k+=1;
 		}
 		
-		for(int i=0;i<(max_index>-1?max_index:num_intersect);i++){
-            for(int j=i+1;j<(max_index>-1?max_index:num_intersect);j++){
+		for(int i=0;i<k;i++){
+            for(int j=i+1;j<k;j++){
                 
                 int rc = check_interception(linha[i].p1.x,linha[i].p1.y,linha[i].p2.x,linha[i].p2.y,linha[j].p1.x,linha[j].p1.y,linha[j].p2.x,linha[j].p2.y);
                 values+=rc;
