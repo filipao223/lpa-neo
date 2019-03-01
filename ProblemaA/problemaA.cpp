@@ -20,8 +20,7 @@ typedef struct Linha{
     int inicio,fim;
 }Linha;
 
-FILE *output;
-bool first_global;
+FILE *output; //Validation file pointer
 
 /*
 	Simple function that returns the largest of two integers
@@ -37,6 +36,9 @@ int min(int num1, int num2){
 	return num1>num2?num2:num1;
 }
 
+/*
+	Function to display received input
+*/
 void print_input(int num_pos, Point coord[], int num_dev, int num_int, int conn[]){
 	printf("Num positions: %d\n", num_pos);
 	printf("Coord: \n");
@@ -172,15 +174,35 @@ int check_intersection(Linha linha1,Linha linha2){
     return 0;
 }
 
-int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,int connections[],Point device_coord[],Point temp[],Linha linha[], Point best_points[]){
+/*
+	Main problem function, recursively calculate minimum number of intersections
+	Param:
+		int device_num -> number of current device, from 0 to num_devices-1;
+		int num_devices -> total number of devices;
+		int num_intersect -> number of connections between devices
+		int num_coord -> number of available coordinates
+		int best -> current best intersection result
+		Point device_coord[] -> struct Point array containing all available coordinates
+		Point temp[] -> struct Point array containing device coordinates, in this format, [device1_p, device2_p, ..., deviceN_p];
+		Linha linha[] -> Array that will have all possible connections
+		Point best_points[] -> Array that will contain best result coordinates, for validation.
+	Returns:
+		Smallest number of intersections found
+		-1, in case of an error
+*/
+int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,Point device_coord[],Point temp[],Linha linha[], Point best_points[]){
     if (device_num > num_devices) return -1;
     else if( device_num>2){
 
         int values = 0;
-		//int max_index = -1;
 		int k=0;
 
+		//Fill linha[] with all possible connections
 		for(int i=0;i<num_intersect;i++){
+				/*
+					Prevent filling linha[] with connections between devices that haven't been given
+					coordinates yet, i.e., recursive step isn't at last device.
+				*/
 				if ((device_num < num_devices) && (linha[i].inicio==device_num+1 || linha[i].fim==device_num+1)){
 					//Stop making permutations
 					continue;
@@ -192,24 +214,19 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
 				k+=1;
 		}
 
+		//Calculate number of intersections
 		for(int i=0;i<k;i++){
             for(int j=i+1;j<k;j++){
 
                 int rc = check_intersection(linha[i],linha[j]);
                 values+=rc;
 
-                if(values >= best){
-					//device_coord[device_num].available = 1;
-					return best;
-				}
+                if(values >= best) return best;
             }
 		}
 
-
-		if (device_num==num_devices){
-			//device_coord[device_num].available = 1;
-			return values;
-		}
+		//Only save if all devices were compared
+		if (device_num==num_devices) return values;
 
 		/*We haven't reached best yet, continue with the recursion. To do that
 		  goto to the for loop where the coordinates are given to devices
@@ -222,21 +239,24 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
 		//Resume the recursive steps
 		resume:
         for(int i = 0;i<num_coord;i++){
+			//If current coordinate isn't already assigned to a device
             if(device_coord[i].available ==1 ){
+				/*
+					Assign a new coordinate to this device, and mark current one as unavailable
+				*/
                 temp[device_num].x = device_coord[i].x;
                 temp[device_num].y = device_coord[i].y;
                 device_coord[i].available = 0;
-                int value = combination(device_num+1,num_devices,num_intersect,num_coord,best,connections,device_coord,temp,linha, best_points);
+
+                int value = combination(device_num+1,num_devices,num_intersect,num_coord,best,device_coord,temp,linha, best_points);
                 device_coord[i].available = 1;
+
+				//There won't be a better value than 0
 				if (value==0) return 0;
 
                 if ((value!=-1) && (value < best)){
-					/*printf("New best: %d, previous was %d\n", value, best);
-					printf("Its coordinates are: \n");
-					for(int i=0; i<num_devices; i++){
-						printf("Device %d: %d %d\n", i+1, temp[i].x, temp[i].y);
-					}*/
                     best = value;
+
 					//Save best points until now
 					for(int i=0; i<num_devices; i++){
 						Point p;
@@ -262,12 +282,12 @@ int main(){
 
 	int test_case_number = 1;
 
-
+	/*
+		Program input
+	*/
 	while(fgets(temp, MAX_TEMP, stdin) != NULL){ //Keep reading until EOF (end-of-file (null))
-		int num_pos = atoi(temp); 	//Numero de posiçoes possiveis
-		Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
-
-		first_global = true;
+		int num_pos = atoi(temp); 	//Number of possible positions
+		Point coord[num_pos]; 		//Position coordinates [p1,p2,p3,...,pN] p1 -> x1,y1
 
 		for(int i=0; i<num_pos; i++){
 			fgets(temp, MAX_TEMP, stdin);
@@ -287,7 +307,6 @@ int main(){
 		token = strtok(NULL, " ");
 		int num_intersect = atoi(token);
 
-		int connections[num_intersect*2];
 		Point temporario[num_devices];
 		Linha linha[num_intersect];
 
@@ -299,20 +318,17 @@ int main(){
 		for(int i=0; i<num_intersect*2; i+=2){
 			fgets(temp, MAX_TEMP, stdin);
 			token = strtok(temp, " ");
-			connections[i] = atoi(token);
 			linha[i/2].inicio = atoi(token);
+
 			token = strtok(NULL, " ");
-			connections[i+1] = atoi(token);
 			linha[i/2].fim = atoi(token);
 		}
 
 		//Best point array
 		Point best_points[num_devices];
 
-		//Test input
-		//print_input(num_pos, coord, num_devices, num_intersect, connections);
-
-		printf("%d\n",combination(0,num_devices,num_intersect,num_pos,__INT_MAX__,connections,coord,temporario,linha, best_points));
+		//Print main result
+		printf("%d\n",combination(0,num_devices,num_intersect,num_pos,__INT_MAX__,coord,temporario,linha, best_points));
 
 		//Write best points to validation file
 		fprintf(output, "Best results for test %d\n", test_case_number);
@@ -323,7 +339,7 @@ int main(){
 		test_case_number+=1;
 	}
 
-	//Close output file
+	//Close validation file
 	fclose(output);
 
 	return 0;
