@@ -21,6 +21,7 @@ typedef struct Linha{
 }Linha;
 
 FILE *output;
+bool first_global;
 
 /*
 	Simple function that returns the largest of two integers
@@ -159,42 +160,53 @@ int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, i
 
 int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,int connections[],Point device_coord[],Point temp[],Linha linha[], Point best_points[]){
     if (device_num > num_devices) return -1;
-    else if( device_num == num_devices || device_num>2 ){
+    else if( device_num>2){
 
         int values = 0;
+		int max_index = -1;
         
 		for(int i=0;i<num_intersect;i++){
-        
+				if ((device_num < num_devices) && (linha[i].inicio==device_num || linha[i].fim==device_num)){
+					//Stop making permutations
+					max_index = i;
+					break;
+				}
                 linha[i].p1.x = temp[linha[i].inicio-1].x;
                 linha[i].p1.y = temp[linha[i].inicio-1].y;
                 linha[i].p2.x = temp[linha[i].fim-1].x;
                 linha[i].p2.y = temp[linha[i].fim-1].y;
 		}
 		
-		for(int i=0;i<num_intersect;i++){
-            for(int j=i+1;j<num_intersect;j++){
+		for(int i=0;i<(max_index>-1?max_index:num_intersect);i++){
+            for(int j=i+1;j<(max_index>-1?max_index:num_intersect);j++){
                 
                 int rc = check_interception(linha[i].p1.x,linha[i].p1.y,linha[i].p2.x,linha[i].p2.y,linha[j].p1.x,linha[j].p1.y,linha[j].p2.x,linha[j].p2.y);
                 values+=rc;
 
-                if(values >= best) return best;
+                if(values >= best){
+					//device_coord[device_num].available = 1;
+					return best;
+				}
             }
 		}
 
-		//if (device_num==num_devices && values < best) printf("-6Interseçoes: %d\n", values);
 		
-		if (device_num==num_devices) return values;
-		//if (device_num==num_devices && values == best) return best;
+		if (device_num==num_devices){
+			//device_coord[device_num].available = 1;
+			return values;
+		}
+		
 		/*We haven't reached best yet, continue with the recursion. To do that
 		  goto to the for loop where the coordinates are given to devices
 		  (because we havent yet given a new coordinate to every device
 		  i.e., device_num is < than the max number of devices)*/
 		else goto resume;
+		
     }
     else{
 		//Resume the recursive steps
 		resume:
-        for(int i = 0;i<=num_coord;i++){
+        for(int i = 0;i<num_coord;i++){
             if(device_coord[i].available ==1 ){
                 temp[device_num].x = device_coord[i].x;
                 temp[device_num].y = device_coord[i].y;
@@ -204,6 +216,11 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
 				if (value==0) return 0;
 
                 if ((value!=-1) && (value < best)){
+					/*printf("New best: %d, previous was %d\n", value, best);
+					printf("Its coordinates are: \n");
+					for(int i=0; i<num_devices; i++){
+						printf("Device %d: %d %d\n", i+1, temp[i].x, temp[i].y);
+					}*/
                     best = value;
 					//Save best points until now
 					for(int i=0; i<num_devices; i++){
@@ -234,6 +251,8 @@ int main(){
 	while(fgets(temp, MAX_TEMP, stdin) != NULL){ //Keep reading until EOF (end-of-file (null))
 		int num_pos = atoi(temp); 	//Numero de posiçoes possiveis
 		Point coord[num_pos]; 		//Coordenadas das posiçoes [p1,p2,p3,...,pN] p1 -> x1,y1
+
+		first_global = true;
 
 		for(int i=0; i<num_pos; i++){
 			fgets(temp, MAX_TEMP, stdin);
