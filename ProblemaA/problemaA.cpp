@@ -288,7 +288,7 @@ int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, i
     int o3 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x1, coord_y1);
     int o4 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x2, coord_y2);
 
-	if(coord_x1 == coord_x3 && coord_y1 == coord_y3){
+    if(coord_x1 == coord_x3 && coord_y1 == coord_y3){
         return 0;
     }
 
@@ -376,7 +376,9 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
                     best = value;
 					//Save best points until now
 					for(int i=0; i<num_devices; i++){
-						Point p = {.x = temp[i].x, .y = temp[i].y};
+						Point p;
+                        p.x = temp[i].x;
+                        p.y = temp[i].y;
 						best_points[i] = p;
 					}
                     //printf(" Best temp %d ", value);
@@ -459,7 +461,7 @@ int main(){
 		//print_input(num_pos, coord, num_devices, num_intersect, connections);
 
 		//printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, coord, __INT_MAX__, connections, device_coord));
-	
+
 		printf("%d\n",combination(0,num_devices,num_intersect,num_pos,__INT_MAX__,connections,coord,temporario,linha, best_points));
 
 		//Write best points to validation file
