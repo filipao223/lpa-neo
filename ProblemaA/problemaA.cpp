@@ -64,8 +64,8 @@ void print_input(int num_pos, Point coord[], int num_dev, int num_int, int conn[
 		1, if they overlap
 		0, elsewise
 */
-int line_segment(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3){
-    if(coord_x2 <= max(coord_x1, coord_x3) && coord_x2 >= min(coord_x1, coord_x3) && coord_y2 <= max(coord_y1, coord_y3) && coord_y2 >= min(coord_y1,coord_y3)){
+int line_segment(int x1, int y1, int x2, int y2, int x3, int y3){
+    if(x2 <= max(x1, x3) && x2 >= min(x1, x3) && y2 <= max(y1, y3) && y2 >= min(y1,y3)){
         return 1;
     }
     return 0;
@@ -84,9 +84,9 @@ int line_segment(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coo
 	    1, if clockwise -> exp > 0
 		0, if collinear -> exp = 0
 */
-int orientacao(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3){
-    int aux = (coord_y2 - coord_y1)*(coord_x3 - coord_x2) - (coord_x2-coord_x1)*(coord_y3-coord_y2);
-    if(aux == 0){   //se e colinear
+int orientation(int x1, int y1, int x2, int y2, int x3, int y3){
+    int aux = (y2 - y1)*(x3 - x2) - (x2-x1)*(y3-y2);
+    if(aux == 0){
         return 0;
     }
     if(aux > 0){
@@ -119,41 +119,55 @@ int orientacao(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord
 		1, if lines intersect
 		0, if they don't intersect
 */
-int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3, int coord_x4, int coord_y4){
+int check_intersection(Linha linha1,Linha linha2){
 
-	if(coord_x1 == coord_x3 && coord_y1 == coord_y3){
+    int x1,y1,x2,y2,x3,y3,x4,y4;
+
+    x1 = linha1.p1.x;
+    y1 = linha1.p1.y;
+
+    x2 = linha1.p2.x;
+    y2 = linha1.p2.y;
+
+    x3 = linha2.p1.x;
+    y3 = linha2.p1.y;
+
+    x4 = linha2.p2.x;
+    y4 = linha2.p2.y;
+
+	if(x1 == x3 && y1 == y3){
         return 0;
     }
 
-    if(coord_x1 == coord_x4 && coord_y1 == coord_y4){
+    if(x1 == x4 && y1 == y4){
         return 0;
     }
 
-    if(coord_x2 == coord_x3 && coord_y2 == coord_y3){
+    if(x2 == x3 && y2 == y3){
         return 0;
     }
 
-    if(coord_x2 == coord_x4 && coord_y2 == coord_y4){
+    if(x2 == x4 && y2 == y4){
         return 0;
     }
 
-    int o1 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x3, coord_y3);
-    int o2 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x4, coord_y4);
-    int o3 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x1, coord_y1);
-    int o4 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x2, coord_y2);
+    int o1 = orientation(x1, y1, x2, y2, x3, y3);
+    int o2 = orientation(x1, y1, x2, y2, x4, y4);
+    int o3 = orientation(x3, y3, x4, y4, x1, y1);
+    int o4 = orientation(x3, y3, x4, y4, x2, y2);
 
     //caso geral
     if( o1 != o2 && o3 != o4)
         return 1;
 
 
-    if(o1 == 0 && line_segment(coord_x1, coord_y1, coord_x3, coord_y3, coord_x2, coord_y2))
+    if(o1 == 0 && line_segment(x1, y1, x3, y3, x2, y2))
         return 1;
-    if(o2 == 0 && line_segment(coord_x1, coord_y1, coord_x4, coord_y4, coord_x2, coord_y2))
+    if(o2 == 0 && line_segment(x1, y1, x4, y4, x2, y2))
         return 1;
-    if(o3 == 0 && line_segment(coord_x3, coord_y3, coord_x1, coord_y1, coord_x4, coord_y4))
+    if(o3 == 0 && line_segment(x3, y3, x1, y1, x4, y4))
         return 1;
-    if(o4 == 0 && line_segment(coord_x3, coord_y3, coord_x2, coord_y2, coord_x4, coord_y4))
+    if(o4 == 0 && line_segment(x3, y3, x2, y2, x4, y4))
         return 1;
     return 0;
 }
@@ -165,7 +179,7 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
         int values = 0;
 		//int max_index = -1;
 		int k=0;
-        
+
 		for(int i=0;i<num_intersect;i++){
 				if ((device_num < num_devices) && (linha[i].inicio==device_num+1 || linha[i].fim==device_num+1)){
 					//Stop making permutations
@@ -177,11 +191,11 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
                 linha[k].p2.y = temp[linha[k].fim-1].y;
 				k+=1;
 		}
-		
+
 		for(int i=0;i<k;i++){
             for(int j=i+1;j<k;j++){
-                
-                int rc = check_interception(linha[i].p1.x,linha[i].p1.y,linha[i].p2.x,linha[i].p2.y,linha[j].p1.x,linha[j].p1.y,linha[j].p2.x,linha[j].p2.y);
+
+                int rc = check_intersection(linha[i],linha[j]);
                 values+=rc;
 
                 if(values >= best){
@@ -191,18 +205,18 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
             }
 		}
 
-		
+
 		if (device_num==num_devices){
 			//device_coord[device_num].available = 1;
 			return values;
 		}
-		
+
 		/*We haven't reached best yet, continue with the recursion. To do that
 		  goto to the for loop where the coordinates are given to devices
 		  (because we havent yet given a new coordinate to every device
 		  i.e., device_num is < than the max number of devices)*/
 		else goto resume;
-		
+
     }
     else{
 		//Resume the recursive steps
