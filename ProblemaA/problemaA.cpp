@@ -283,6 +283,11 @@ int orientacao(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord
 
 int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, int coord_x3, int coord_y3, int coord_x4, int coord_y4){
 
+    int o1 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x3, coord_y3);
+    int o2 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x4, coord_y4);
+    int o3 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x1, coord_y1);
+    int o4 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x2, coord_y2);
+
 	if(coord_x1 == coord_x3 && coord_y1 == coord_y3){
         return 0;
     }
@@ -298,11 +303,6 @@ int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, i
     if(coord_x2 == coord_x4 && coord_y2 == coord_y4){
         return 0;
     }
-
-    int o1 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x3, coord_y3);
-    int o2 = orientacao(coord_x1, coord_y1, coord_x2, coord_y2, coord_x4, coord_y4);
-    int o3 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x1, coord_y1);
-    int o4 = orientacao(coord_x3, coord_y3, coord_x4, coord_y4, coord_x2, coord_y2);
 
     //caso geral
     if( o1 != o2 && o3 != o4)
@@ -322,7 +322,7 @@ int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, i
 
 int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,int connections[],Point device_coord[],Point temp[],Linha linha[], Point best_points[]){
     if (device_num > num_devices) return -1;
-    else if(device_num == num_devices || device_num>=2 ){
+    else if( device_num>2 ){
 
         int values = 0;
         /*for(int i=0;i<num_devices;i++){
@@ -349,11 +349,15 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
                 //printf("Intersecoes %d\n",rc);
                 //printf("%d , %d \n",i,j);
                 values+=rc;
-                if(values >= best) return best;
+
+                if(values > best) return best;
             }
 		}
+
+		if (device_num==num_devices && values < best) printf("-6Interseçoes: %d\n", values);
 		
-		if (device_num==num_devices) return values;
+		if (device_num==num_devices && values < best) return values;
+		if (device_num==num_devices && values == best) return best;
 		else goto resume;
 		//printf("Intersecoes %d\n", values);
     }
