@@ -167,7 +167,7 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
 		int k=0;
         
 		for(int i=0;i<num_intersect;i++){
-				if ((device_num < num_devices) && (linha[i].inicio==device_num || linha[i].fim==device_num)){
+				if ((device_num < num_devices) && (linha[i].inicio==device_num+1 || linha[i].fim==device_num+1)){
 					//Stop making permutations
 					continue;
 				}
