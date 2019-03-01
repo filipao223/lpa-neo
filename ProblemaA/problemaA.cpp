@@ -20,6 +20,8 @@ typedef struct Linha{
     int inicio,fim;
 }Linha;
 
+FILE *output;
+
 /*
 	Simple function that returns the largest of two integers
 */
@@ -33,6 +35,8 @@ int max(int num1, int num2){
 int min(int num1, int num2){
 	return num1>num2?num2:num1;
 }
+
+//void print_solution(Point temp[], )
 
 /*
 	6 (6 posiçoes possiveis)
@@ -316,7 +320,7 @@ int check_interception(int coord_x1, int coord_y1, int coord_x2, int coord_y2, i
     return 0;
 }
 
-int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,int connections[],Point device_coord[],Point temp[],Linha linha[]){
+int combination(int device_num, int num_devices,int num_intersect,int num_coord,int best,int connections[],Point device_coord[],Point temp[],Linha linha[], Point best_points[]){
     if (device_num > num_devices) return -1;
     else if(device_num == num_devices || device_num>=2 ){
 
@@ -360,12 +364,17 @@ int combination(int device_num, int num_devices,int num_intersect,int num_coord,
                 temp[device_num].x = device_coord[i].x;
                 temp[device_num].y = device_coord[i].y;
                 device_coord[i].available = 0;
-                int value = combination(device_num+1,num_devices,num_intersect,num_coord,best,connections,device_coord,temp,linha);
+                int value = combination(device_num+1,num_devices,num_intersect,num_coord,best,connections,device_coord,temp,linha, best_points);
                 device_coord[i].available = 1;
 				if (value==0) return 0;
 
                 if ((value!=-1) && (value < best)){
                     best = value;
+					//Save best points until now
+					for(int i=0; i<num_devices; i++){
+						Point p = {.x = temp[i].x, .y = temp[i].y};
+						best_points[i] = p;
+					}
                     //printf(" Best temp %d ", value);
                 }
             }
@@ -379,6 +388,11 @@ int main(){
 
 	char temp[MAX_TEMP];
 	char *token = NULL;
+
+	//Open file for validation
+	output = fopen("data.out", "w");
+
+	int test_case_number = 1;
 
 
 	while(fgets(temp, MAX_TEMP, stdin) != NULL){ //Keep reading until EOF (end-of-file (null))
@@ -422,6 +436,9 @@ int main(){
 			linha[i/2].fim = atoi(token);
 		}
 
+		//Best point array
+		Point best_points[num_devices];
+
 		/*for(int i=0; i<num_intersect; i++){
             printf("%d , %d \n",linha[i].inicio,linha[i].fim);
 		}*/
@@ -439,7 +456,13 @@ int main(){
 
 		//printf("Best result: %d\n", _problemaA(0, num_devices, num_intersect, num_pos, coord, __INT_MAX__, connections, device_coord));
 	
-		printf("%d\n",combination(0,num_devices,num_intersect,num_pos,__INT_MAX__,connections,coord,temporario,linha));
+		printf("%d\n",combination(0,num_devices,num_intersect,num_pos,__INT_MAX__,connections,coord,temporario,linha, best_points));
+
+		//Write best points to validation file
+		fprintf(output, "Best results for test %d\n", test_case_number);
+		for (int i=0; i<num_devices; i++){
+			fprintf(output, "%d %d\n", best_points[i].x, best_points[i].y);
+		}
 
 		//Test intersection detection
 		/*Point p1 = {.x = 1, .y = 1}, q1 = {.x = 10, .y = 1};
@@ -451,7 +474,12 @@ int main(){
 		p1 = {.x=-5, .y=-5}, q1 = {.x=0, .y=0};
     	p2 = {.x=1, .y=1}, q2 = {.x=10, .y=10};
 		printf("Return value: %d\n", check_intersection(p1,q1,p2,q2));*/
+
+		test_case_number+=1;
 	}
+
+	//Close output file
+	fclose(output);
 
 	return 0;
 }
