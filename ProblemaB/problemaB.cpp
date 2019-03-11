@@ -3,7 +3,6 @@
 #include <string.h>
 
 #define MAX_TEMP 2024
-#define MAX_EVENTS 10000
 
 typedef struct Event{
     int deadline;
@@ -34,7 +33,7 @@ int main(int argc, char **argv){
         /*Previous input was number of events*/
         int num_events = atoi(temp);
 
-        Event event_list[MAX_EVENTS];
+        Event event_list[num_events];
 
         /*Read individual event data*/
         for (int i=0; i<num_events; i++){
