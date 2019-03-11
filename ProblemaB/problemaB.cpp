@@ -20,6 +20,13 @@ void print_input(Event event_list[], int num_events){
     printf("Done\n");
 }
 
+int comparison(const void *a, const void *b){
+    Event *eventA = (Event *)a;
+    Event *eventB = (Event *)b;
+
+    return (eventA->deadline - eventB->deadline);
+}
+
 /*
     Ideia:
         1-Ordenar os eventos por deadline;
@@ -62,6 +69,9 @@ int main(int argc, char **argv){
 
             event_list[i] = event;
         }
+
+        /*Sort by deadline*/
+        qsort(event_list, num_events, sizeof(Event), comparison);
 
         /*Test received input*/
         print_input(event_list, num_events);
