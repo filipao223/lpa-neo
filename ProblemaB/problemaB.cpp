@@ -20,6 +20,21 @@ void print_input(Event event_list[], int num_events){
     printf("Done\n");
 }
 
+/*
+    Ideia:
+        1-Ordenar os eventos por deadline;
+        2-Fazer uma arvore como no ProblemaA do treino2
+            (Escolher a maior soma possivel)
+            Ver: https://pastebin.com/pbC8zins
+        3-Cada nivel tem o mesmo deadline
+        4-Escolher o maior profit de cada nivel e passar para o nivel
+            equivalente a nivel_atual + duration, p .ex:
+            2, tem deadline 2, o evento com maior profit tem duraçao
+            5, entao passa para o nivel 7, deadline 7, ...
+            (Esta parte é duvidosa)
+        5- ???
+        6- Profit
+*/
 void problemB(Event event_list[], int num_events){
     
 }
