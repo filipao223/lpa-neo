@@ -28,7 +28,7 @@ int comparison(const void *a, const void *b){
 }
 
 /*
-    Ideia:
+    Ideia 1:
         1-Ordenar os eventos por deadline;
         2-Fazer uma arvore como no ProblemaA do treino2
             (Escolher a maior soma possivel)
@@ -41,9 +41,35 @@ int comparison(const void *a, const void *b){
             (Esta parte é duvidosa)
         5- ???
         6- Profit
-*/
-void problemB(Event event_list[], int num_events){
     
+    Ideia 2:
+        1-Ordenar os eventos por deadline;
+        2-Não fazer uma arvore, mas usar o array dos eventos
+        3-Usar outro array para guardar somas
+        4-Usar um contador que guarde a duraçao atual e lucro atual
+        5-Entrar na funçao recursivamente, aumentando o index
+        6-Se duraçao for superior a deadline, proseguir
+        7-Se nao, aumentar a duraçao e lucro
+        8-Se chegar ao fim, voltar recursivamente e guardar soma em sum_array
+
+    Ideia 3 (best ideia):
+        Tabela do stor
+        Deadline:       1 2 3 4 5 6 7 8 9     Lista eventos: Duraçao
+      Numero Eventos
+            |
+            0           T F F F F F F F F       Evento 1: 3
+            1           T F T T T F F F F       Evento 2: 2
+            2           T ...                   Evento 3: 4
+            3           T ...                   Evento 4: 6
+            4           T ...                   Evento 5: 2
+
+
+*/
+int problemB(Event event_list[], int num_events, int index, int sum_array[], int duration, int profit){
+    if (index >= num_events) return 0;
+    else if (duration > event_list[index].deadline){
+        sum_array[index] = problemB(event_list, num_events, index+1, sum_array, duration, profit);
+    }
 }
 
 int main(int argc, char **argv){
@@ -76,8 +102,11 @@ int main(int argc, char **argv){
         /*Test received input*/
         print_input(event_list, num_events);
 
+        /*Array that holds recursive steps sum results*/
+        int sum_array[num_events] = {0};
+
         /*Main problem function*/
-        problemB(event_list, num_events);
+        problemB(event_list, num_events, 0, sum_array, 0, 0);
     }
 
     return 0;
