@@ -52,7 +52,7 @@ int comparison(const void *a, const void *b){
         7-Se nao, aumentar a duraçao e lucro
         8-Se chegar ao fim, voltar recursivamente e guardar soma em sum_array
 
-    Ideia 3 (best ideia):
+    Ideia 3 (best ideia) (USAR ESTA):
         Tabela do stor
         Deadline:       1 2 3 4 5 6 7 8 9     Lista eventos: Duraçao
       Numero Eventos
@@ -62,6 +62,8 @@ int comparison(const void *a, const void *b){
             2           T ...                   Evento 3: 4
             3           T ...                   Evento 4: 6
             4           T ...                   Evento 5: 2
+
+        Em vez de T ou F, usar o profit de cada evento, como no exemplo Knapsack
 
 
 */
