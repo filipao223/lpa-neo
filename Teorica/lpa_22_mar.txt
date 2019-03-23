@@ -1,0 +1,20 @@
+Interval partition problem
+-------------------------
+
+->Set S={1,..,n}
+->Each room can only be used by one event
+->Each event i must occur in the interval [Si, fi)
+->Select the minimum number of rooms to schedule all events
+
+Function Partition(S)
+    Sort events in non decreasing order by starting t=max =>  O(nlogn)
+    R1 = R2 = ... = Rn = ∅
+    d = 0
+    for i ∈ S                                             =>  O(n²)
+        if i can be assigned in some room Rk, k<=d
+            R(k) = R(k) ∪ {i}
+        else
+            R(d+1)={i}                                   =>   O(nklogn)
+            d++
+    return d
+

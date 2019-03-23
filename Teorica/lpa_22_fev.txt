@@ -1,0 +1,13 @@
+Function MIS(v, size)
+    if size>last
+        last=size
+    for i=v+1 to n
+        if{i,v} e E
+            neigh[i]++
+    for i=v+1 to n
+        if neigh[i]==0
+            MIS(i, size+1)
+    for i=v+1 to n
+        if{i,v} e E
+            neigh[i]--
+

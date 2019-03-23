@@ -1,0 +1,101 @@
+Coin Change
+==================================================
+-> Minimum number of coins to make change for C with n denominations (infinite)
+
+Exemplos:
+
+C=36 denominations = {1,5,10,20}
+36-20=16
+16-10=6
+6-5=1
+1-1=0
+
+C=30 denominations={1,10,25}
+30-25=5    30-10=20
+5 -1=4     20-10=10
+4 -1=3     10-10=0
+3 -1=2
+2 -1=1
+1 -1=0
+
+Subproblem
+----------
+A) Find the minimum of coins to make change for c1<=c considering the first i<=n denominations
+
+    Optimal substructure
+    ------
+    1) Let S be the optimal for A; A=> S\ {di} is optimal for c'-di considering the first i denominations
+    2) A=> S is also the optimal for c' considering the first i-1 denominations
+
+    Proof of 1)
+        1) Assumption: S is optimal for A
+        2) Negation: S\{di} is not optimal for c'-di => ∃ S': |S'| < |S\{di}|
+        3) Consequence: |S' U {di}| < |S|
+        4) Contradiction: S is not optimal
+
+Recursive algorithm
+----------------
+Function Change(c,i)
+    if i=0 and c>0
+        return ∞
+    if c=0
+        return 0
+    if di>c
+        return Change(c, i-1)
+    return min(Change(c, i-1), 1 + Change(c-di, i))
+
+Top down algorithm
+---------------
+Function Change(c,i)
+    if i=0 and c>0
+        return ∞
+    if c=0
+        return 0
+    if DP[c,i] is cached
+        return DP[c,i]
+    if di>c
+        DP[c,i] = Change(c, i-1)
+    else
+        DP[c,i] = min(Change(c,i-1), 1+Change(c'-di, i))
+    return DP[c,i]
+
+Bottom up algorithm O(nC) (pesudopolinomial)
+---------------
+Function Change()
+    for i=0 to n
+        DP[i,0] = 0
+    for j=1 to c
+        DP[0,j] = ∞
+    for i=1 to n
+        for j=1 to c
+            if di>j     //di-> valor da moeda
+                DP[i,j] = DP[i-1,j]
+            else
+                DP[i,j] = min(DP[i-1,j], 1+DP[i, j-di])
+
+Top up algorithm (finite coins)
+---------------
+Function Subset(c,i)
+    if i=0 and c!=0
+        return F
+    if c=0
+        return T
+    if di>c
+        DP[c,i] = Subset(c,i-1)
+    else
+        DP[c,i] = Subset(c,i-1) U Subset(c'-di, i)
+    return DP[c,i]
+
+Bottom up algorithm (finite coins)
+----------------
+Function Subset()
+    for i=0 to n
+        DP[i,0] = T
+    for j=1 to c
+        DP[0,j] = F
+    for i=1 to n
+        for j=1 to c
+            if di>j     //di-> valor da moeda
+                DP[i,j] = DP[i-1,j]
+            else
+                DP[i,j] = DP[i-1,j] U DP[i, j-di])

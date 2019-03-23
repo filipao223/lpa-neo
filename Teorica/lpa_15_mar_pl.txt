@@ -1,0 +1,44 @@
+Ex. pizzas | subset sum
+
+    Caso base: ()       Pizzas (tempo de cozedura): 1, 2, 1, 3 -> total=7
+        0 1 2 3
+    0 | T F F F
+
+    Para i,j: olhar para i-1,j (não usar esta pizza) ou 1-1,j-(tempo cozedura) (usar a pizza e subtrair o tempo de cozedura)
+
+    Apresentar o resultado:
+        ->voltar atras nas decisoes, estando em (4,3), se true, avaliar oq foi feito para ser true, ou 
+        se usou a pizza, ou nao se usou essa pizza. Se se usou a pizza, ent olha-se para i-1,j-tempo, se nao,
+        entao para i-1,j.
+        ->Se fosse false, teria de se ver para tempo 2, se aí desse, como o tempo total das pizzas=7
+        a menor diferença entre os fornos seria 3 (forno1=2, forno2=5, t=7)
+
+          0 | 1 | 2 | 3 Tempo de cozedura
+        0 T | F | F | F
+        1 T | T | F | F
+        2 T | T | T | T
+        3 T | T | T | T
+        4 T | T | T | T
+        |
+        -> Numero de pizzas
+        (Objetivo é arranjar um subconjunto com ate n_pizzas_atual que dê o valor do tempo_cozedura_atual)
+Coin change:
+Function Subset():
+    for i=0 to n
+        DP[i,0]=T
+    for j=1 to c
+        DP[0,j]=F
+    for i=1 to n
+        for j=1 to c
+            if v[i]>j
+                DP[i,j] = DP[i-1,j]
+            else 
+                DP[i,j] = DP[i-1,j] U DP[i-1,j-v[i]]
+
+    Input: 2,3,5
+
+      0 | 1 | 2 | 3 | 4 | 5
+    0 T | F | F | F | F | F
+    1 T | T | T | F | F | F  2
+    2 T | T | T | F | F | F  3
+    3 T | T | T | T | T | T  5
