@@ -1,0 +1,24 @@
+Count monotonic paths in a grid
+
+//
+
+Top down
+Function Count(i,j)
+    if DP[i,j] >0
+        return DP[i,j]
+    if i=1 or j=1
+        return 1
+    else
+        DP[i,j]= Count(i-1,j) + Count(i,j-1)
+        return DP[i,j]
+
+Bottom up
+Function Count()
+    for i to n
+        DP[i,1] = 1
+    for j=1 to n
+        DP[1,j] = 1
+    for i=2 to n
+        for j=2 to n
+            DP[i,j]= DP[i-1,j] + DP[i,j-1]
+    return DP[n,n]

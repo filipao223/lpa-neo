@@ -1,0 +1,47 @@
+1) Optimal substructure
+    -The optimal solution contains solutions to sub-problems
+2)Overlapping subproblem
+    -The solution to a subproblem can be used several times
+
+Top Down DP
+
+Function fib(n)
+if t[n] is cached
+    return t[n]
+if n=0 or n=1
+    t[n] = n
+    return n
+else
+    t[n] = fib(n-1) + fib(n-2)
+    return t[n]
+
+Bottom-Up DP
+
+t[0] = 0
+t[1] = 1
+for i=2 to n
+    t[i] = t[i-1] + t[i-2]
+return t[n]
+g[n]
+
+F => G
+a^2 is even => a is even
+F => ¬G
+
+1) Assumption: a^2 is even
+2) Negation: a^2 is even => a is odd
+3) Consequence: a is odd => a^2 is odd
+4) Contradiction: a^2 is even and odd
+
+Longest Increasing Sequence (LIS)
+
+1) subproblem
+    -Given sequence S=(S1, ..., Sn), let LIS(i) be the LIS that ends in Si
+    A) LIS(i) is LIS that ends in Si => If Si is removed from LIS(i), we obtain
+        -Empty sequence if |LIS(i)| = 1
+        -LIS(j), Sj < Si, j<i, otherwise
+
+1) Assumption: LIS(i) is the LIS that ends in Si
+2) Negation: |LIS(j)| > |LIS(i)\{Si}|
+3) Consequence: |LIS(j) U {Si}| > |LIS(i)| X
+4) Contradiction: Contradict that LIS(i) is optimal

@@ -1,0 +1,52 @@
+Knapsack:
+    ->Given a set of objects{1,...,n}
+    ->Each object i has a profit Vi
+    ->Each object i has a weight Wi
+    ->A knapsack with capacity W
+    -Find a solution of objects that maximize the total value without exceeding a total weight of W
+
+    Subproblem:
+        Find a subset of the first i <= n objects that maximize total value, given a total wieght w' <= W
+
+    Top down
+    --------------
+    Function Knapsack(i,w)
+        if i=0
+            return 0
+        if DP[i,w] is cached
+            return DP[i,w]
+        if wi > w
+            return Knapsack(i-1,w)
+        else
+            return max(Knapsack(i-1,w), Knapsack(i-1,w-wi) + vi)
+        return DP[i,w]
+
+    Tabela
+
+    Object | Value | Weight  W=5
+       1       3       2
+       2       4       3
+       3       5       4
+       4       6       5
+
+           0 | 1 | 2 | 3 | 4 | 5
+        0  0 | 0 | 0 | 0 | 0 | 0
+        1  0 | 0 | 3 | 3 | 3 | 3
+        2  0 | 0 | 3 | 4 | 4 | 7
+        3  0 | 0 | 3 | 4 | 5 | 7
+        4  0 | 0 | 3 | 4 | 5 | 7
+
+    Bottom up
+    ------------
+    Function Knapsack()
+        for i=0 to n
+            DP[i,0] = 0
+        for j=1 to w
+            DP[0,j] = 0
+        for i=1 to n
+            for j=1 to w
+                if wi>j
+                    DP[i,j] = DP[i-1,j]
+                else
+                    DP[i,j] = max(DP[i-1,j], DP[i-1,j-wi] + vi)
+        return DP[n,w]

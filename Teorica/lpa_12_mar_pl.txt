@@ -1,0 +1,8 @@
+Tabela 4 moedas {2,3,5}
+
+     | 0 | 1 | 2 | 3 | 4 | 5 |
+     --------------------------
+  0  | T | F | F | F | F | F | 
+  1  | T | F | T | F | F | F |  Moeda 2
+  2  | T | F | T | T | F | T |  Moeda 3
+  3  | T | F | T | T | F | T |  Moeda 5

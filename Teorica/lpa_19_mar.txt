@@ -1,0 +1,24 @@
+Fractional knapsack problem
+    Example: W = 50KG
+        Object 1: 60€, 10KG, 6€/KG
+        Object 2: 100€, 20KG, 5€/KG
+        Object 3: 120€, 30KG, 4€/KG
+
+    Greedy choice: Choose the object with the longest v/w
+
+    Greedy Algorithm
+    --------------------
+    Function Fk(W)
+        Sort objects in non increasing order of v/W -> O(nlogn)
+        w=0, v=0, j=1
+        while w<W                   -> O(n)
+            if w + wj <= W
+                w += wj
+                v += vj
+            else
+                v += vj/wj * (W-w)
+                w = W
+            j++
+        return v
+
+    
