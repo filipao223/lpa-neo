@@ -64,7 +64,7 @@ int comparison(const void *a, const void *b){
             4           T ...                   Evento 5: 2
 
         Em vez de T ou F, usar o profit de cada evento, como no exemplo Knapsack
-
+        Ver: https://pastebin.com/i4aeQnmg
 
 */
 int problemB(Event event_list[], int num_events, int index, int sum_array[], int duration, int profit){
