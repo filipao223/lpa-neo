@@ -91,7 +91,7 @@ int problemB(Event event_list[], int num_events, int max_deadline, int DP[][MAX_
 
     for (int i=1; i<=num_events; i++){
         for (int j=1; j<=max_deadline; j++){
-            if (event_list[i-1].duration>=j) 
+            if (event_list[i-1].deadline>j) 
                 DP[i][j] = DP[i-1][j];
             else 
                 DP[i][j] = max(DP[i-1][j], DP[i-1][j-event_list[i-1].duration] + event_list[i-1].profit);
@@ -143,7 +143,7 @@ int main(){
         /*Print DP*/
         //printf("Max deadline: %d\n", max_deadline);
         //printf("Num of events: %d\n", num_events);
-        print_DP(DP, num_events, max_deadline);
+        //print_DP(DP, num_events, max_deadline);
     }
 
     return 0;
