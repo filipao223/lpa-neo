@@ -2,7 +2,8 @@ CC=gcc
 CFLAGS=-Wall -lm
 
 problemaB: problemaB.o
-	$(CC) -o problemaB problemaB.o
+	mkdir -p build/ && \
+	$(CC) -o build/problemaB problemaB.o
 
 clean:
-	rm problemaB *.o
+	rm build/problemaB build/*.o problemaB *.o
