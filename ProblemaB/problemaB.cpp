@@ -3,12 +3,25 @@
 #include <string.h>
 
 #define MAX_TEMP 2024
+#define MAX_DEADLINE 10000
 
 typedef struct Event{
     int deadline;
     int duration;
     int profit;
 } Event;
+
+int max(int a, int b){ return a>b?a:b; }
+
+/**/
+void print_DP(int DP[][MAX_DEADLINE], int num_events, int max_deadline){
+    for(int i=0; i<=num_events; i++){
+        for(int j=0; j<=max_deadline; j++){
+            printf("%d  ", DP[i][j]);
+        }
+        printf("\n");
+    }
+}
 
 /*Simple function that prints received input. For debug purposes only.*/
 void print_input(Event event_list[], int num_events){
@@ -67,14 +80,28 @@ int comparison(const void *a, const void *b){
         Ver: https://pastebin.com/i4aeQnmg
 
 */
-int problemB(Event event_list[], int num_events, int index, int sum_array[], int duration, int profit){
-    if (index >= num_events) return 0;
-    else if (duration > event_list[index].deadline){
-        sum_array[index] = problemB(event_list, num_events, index+1, sum_array, duration, profit);
+int problemB(Event event_list[], int num_events, int max_deadline, int DP[][MAX_DEADLINE]){
+    for (int i=0; i<=num_events; i++){ //Inicia primeira coluna de DP a 0
+        DP[i][0] = 0;
     }
+
+    for (int j=1; j<=max_deadline; j++){ //Inicia primeira linha (a contar da segunda coluna) de DP a 0
+        DP[0][j] = 0;
+    }
+
+    for (int i=1; i<=num_events; i++){
+        for (int j=1; j<=max_deadline; j++){
+            if (event_list[i-1].duration>=j) 
+                DP[i][j] = DP[i-1][j];
+            else 
+                DP[i][j] = max(DP[i-1][j], DP[i-1][j-event_list[i-1].duration] + event_list[i-1].profit);
+        }
+    }
+
+    return DP[num_events][max_deadline];
 }
 
-int main(int argc, char **argv){
+int main(){
 
     char temp[MAX_TEMP];
 
@@ -101,14 +128,22 @@ int main(int argc, char **argv){
         /*Sort by deadline*/
         qsort(event_list, num_events, sizeof(Event), comparison);
 
-        /*Test received input*/
-        print_input(event_list, num_events);
+        /*Get largest deadline*/
+        int max_deadline = event_list[num_events-1].deadline;
 
-        /*Array that holds recursive steps sum results*/
-        int sum_array[num_events] = {0};
+        /*Test received input*/
+        //print_input(event_list, num_events);
+
+        /*Array that sum results*/
+        int DP[num_events][MAX_DEADLINE]; //+1 to include zero events and zero deadline at beggining. See lpa_15_mar.txt line 32
 
         /*Main problem function*/
-        problemB(event_list, num_events, 0, sum_array, 0, 0);
+        printf("%d\n", problemB(event_list, num_events, max_deadline, DP));
+
+        /*Print DP*/
+        //printf("Max deadline: %d\n", max_deadline);
+        //printf("Num of events: %d\n", num_events);
+        print_DP(DP, num_events, max_deadline);
     }
 
     return 0;
