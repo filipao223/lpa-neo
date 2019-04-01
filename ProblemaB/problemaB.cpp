@@ -4,7 +4,7 @@
 #include <math.h>
 
 #define MAX_TEMP 2024
-#define MAX_DEADLINE 10000
+#define MAX_DEADLINE 100001
 
 typedef struct Event{
     int deadline;
@@ -55,7 +55,12 @@ int comparison(const void *a, const void *b){
     Event *eventA = (Event *)a;
     Event *eventB = (Event *)b;
 
-    return (eventA->deadline - eventB->deadline);
+    if (eventA->deadline < eventB->deadline) return -1; //A goes first
+    else if(eventA->deadline > eventB->deadline) return 1; //B goes first
+    else{ //Equal deadlines
+        if (eventA->duration > eventB->duration) return 1; //B goes first
+        else return -1; //A goes first
+    }
 }
 
 /*
@@ -98,7 +103,7 @@ int comparison(const void *a, const void *b){
         Ver: https://pastebin.com/i4aeQnmg
 
 */
-int problemB(Event event_list[], int num_events, int max_deadline, int DP[][MAX_DEADLINE]){
+int problemB(Event event_list[], int num_events, int max_deadline, int **DP){
     for (int i=0; i<=num_events; i++){ //Inicia primeira coluna de DP a 0
         DP[i][0] = 0;
     }
@@ -153,18 +158,27 @@ int main(){
         //print_input(event_list, num_events);
 
         /*Array that sum results*/
-        int DP[num_events+1][MAX_DEADLINE]; //+1 to include zero events and zero deadline at beggining. See lpa_15_mar.txt line 32
+        //int DP[num_events+1][MAX_DEADLINE]; //+1 to include zero events and zero deadline at beggining. See lpa_15_mar.txt line 32
+        //int (*DP)[MAX_DEADLINE] = malloc((num_events+1) * sizeof *DP);
+        int **DP = (int**)malloc((num_events+1) * sizeof *DP);
+        int *data = (int*)malloc((num_events+1) * (max_deadline+1) * sizeof *data);
+        for (int i=0; i<num_events+1; i++, data+=max_deadline+1) DP[i] = data;
 
         /*Main problem function*/
-        printf("%d\n", problemB(event_list, num_events, max_deadline, DP));
+        int rc = problemB(event_list, num_events, max_deadline, DP);
+        printf("%d\n", rc);
 
         /*Print DP*/
-        printf("\n");
+        /*printf("\n");
         int maxval = DP[num_events][max_deadline]; //Adjust for different sized numbers in output
         int width = round(1+log(maxval)/log(10)); //Adjust for different sized numbers in output
         printf("Max deadline: %d\n", max_deadline);
         printf("Num of events: %d\n", num_events);
-        print_DP(DP, num_events, max_deadline, width);
+        print_DP(DP, num_events, max_deadline, width);*/
+
+        /*Free DP*/
+        free(*DP);
+        free(DP);
     }
 
     return 0;
