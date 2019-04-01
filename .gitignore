@@ -517,3 +517,6 @@ build/
 
 #Gprof
 *.png
+
+#Input from gen_script.sh
+input.in
