@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define MAX_TEMP 2024
 #define MAX_DEADLINE 10000
@@ -14,13 +15,30 @@ typedef struct Event{
 int max(int a, int b){ return a>b?a:b; }
 
 /**/
-void print_DP(int DP[][MAX_DEADLINE], int num_events, int max_deadline){
+void print_DP(int DP[][MAX_DEADLINE], int num_events, int max_deadline, int width){
+    /*-------FOR NICE PRINTING ONLY--------*/
+    //Print deadline numbers
+    for (int i=0; i<width+3; i++) printf(" ");
+    for (int i=0; i<=max_deadline; i++){
+        printf("%*d ", width, i);
+    }
+    printf("\n");
+    for (int i=0; i<width+3; i++) printf(" ");
+    for (int i=0; i<(width+1)*max_deadline+width; i++){
+        printf("-");
+    }
+    printf("\n");
+    /*-------END OF FOR NICE PRINTING ONLY--------*/
+
     for(int i=0; i<=num_events; i++){
+        printf("%*d | ", width, i);
         for(int j=0; j<=max_deadline; j++){
-            printf("%d  ", DP[i][j]);
+            printf("%*d ", width, DP[i][j]); //Print with adjust for different size numbers
         }
         printf("\n");
     }
+
+    printf("\n");
 }
 
 /*Simple function that prints received input. For debug purposes only.*/
@@ -135,15 +153,18 @@ int main(){
         //print_input(event_list, num_events);
 
         /*Array that sum results*/
-        int DP[num_events][MAX_DEADLINE]; //+1 to include zero events and zero deadline at beggining. See lpa_15_mar.txt line 32
+        int DP[num_events+1][MAX_DEADLINE]; //+1 to include zero events and zero deadline at beggining. See lpa_15_mar.txt line 32
 
         /*Main problem function*/
         printf("%d\n", problemB(event_list, num_events, max_deadline, DP));
 
         /*Print DP*/
-        //printf("Max deadline: %d\n", max_deadline);
-        //printf("Num of events: %d\n", num_events);
-        //print_DP(DP, num_events, max_deadline);
+        printf("\n");
+        int maxval = DP[num_events][max_deadline]; //Adjust for different sized numbers in output
+        int width = round(1+log(maxval)/log(10)); //Adjust for different sized numbers in output
+        printf("Max deadline: %d\n", max_deadline);
+        printf("Num of events: %d\n", num_events);
+        print_DP(DP, num_events, max_deadline, width);
     }
 
     return 0;
