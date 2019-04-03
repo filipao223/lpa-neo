@@ -84,6 +84,40 @@ int comparison(const void *a, const void *b){
 
 
 
+/*****************************************************************************************************
+ * Validation function that prints index of each chosen event (starting from 0) and its info
+ * 
+ * Parameters:
+ *      event_list[]: List of received events, struct Event, containing deadline, duration and profit;
+ *      DP[][]: Sum matrix, in order to find which events were chosen.
+ *      num_events: Number of received events, plus one in order to count from 0;
+ *      max_deadline: Maximum deadline found in received events, plus one in order to count from 0;
+ * 
+ *****************************************************************************************************/
+void print_solution(Event event_list[], int **DP, int num_events, int max_deadline){
+    int i=num_events, j=max_deadline;
+    while (1){ //Move back to first 'best' value in last row
+        if (DP[i][j-1] == DP[i][j]) j -= 1;
+        else break;
+    }
+    while(i>0 && j>0){
+        if (DP[i-1][j] == DP[i][j]){ //Value came from above
+            i -= 1;
+        }
+        else{
+            printf("Event index: %d | Start time: %d | End time: %d | Deadline: %d | Profit: %d\n", 
+                i-1, j - event_list[i-1].duration, j, event_list[i-1].deadline, event_list[i-1].profit);
+
+            j -= event_list[i-1].duration;
+            i -= 1;
+        }
+    }
+}
+
+
+
+
+
 
 /*****************************************************************************************************
  * Main problem function
@@ -167,6 +201,9 @@ int main(){
 
         /*Main problem function*/
         printf("%d\n", problemB(event_list, num_events, max_deadline, DP));
+
+        /*Print validation*/
+        //print_solution(event_list, DP, num_events, max_deadline);
 
         /*Print DP (for debugging only)*/
         /*printf("\n");
