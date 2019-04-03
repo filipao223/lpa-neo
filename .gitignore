@@ -34,6 +34,7 @@
 #Except test cases output files
 !out4.out
 !out5.out
+!test*.out
 #done
 *.app
 *.i*86
@@ -516,3 +517,6 @@ build/
 
 #Gprof
 *.png
+
+#Input from gen_script.sh
+input.in
