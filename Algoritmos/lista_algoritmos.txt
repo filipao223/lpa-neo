@@ -1,0 +1,8 @@
+Os algoritmos que necessitam de saber implementar para a prova de programação:
+
+DFS (Depth-first search);
+BFS (Breadth-first search);
+Algoritmos para caminho mais curto (Djkstra, Bellman-Ford, Floyd-Warshall);
+Algoritmo de Kruskal para encontrar a árvore de abragência mínima;
+Algoritmo para encontrar pontos de articulação num grafo;
+Algoritmo de Tarjan para encontrar componentes fortemente conexas.
