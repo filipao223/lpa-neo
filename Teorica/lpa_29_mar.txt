@@ -1,0 +1,16 @@
+Degree constrained minimum spanning tree
+    ->Graph G = (V,E)
+    ->Each {i,j} ∈ E has a given distance l(i,j)
+    ->d is the minimum degree
+    -> _ is a spanning tree with degree at most d at each node
+    -> ____
+
+Function BB(x)
+    if f(x*) <= f(x)
+        return
+    if p = |V|
+        x = x*
+    if g(x) >= f(x*)
+        return
+    for each {i,j} ∈ E
+        if [INCOMPLETO]
