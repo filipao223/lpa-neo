@@ -1,0 +1,14 @@
+Function Diksjtra(G,s,t)
+    for each node v e V
+        d(v) = inf
+    d(s) = 0
+    Q has the set of all nodes
+    while Q != 0
+        u is node with smallest d(u) in Q
+        remove from Q
+        if u=t
+            break
+        for each (u,v) e G
+            if d(v) > d(u) + w(u,v)
+                d(v) = d(u) + w(u,v)
+    return d(t)
