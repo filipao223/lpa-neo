@@ -141,10 +141,10 @@ void dijkstra(int graph[][MAX_NODES], int num_nodes, int target){
 
 
 
-/********************************************************************
- * Main function, reads the graph input as a file passed as parameter
+/*************************************************
+ * Main function, reads the graph input from stdin
  * 
- ********************************************************************/
+ *************************************************/
 int main(int argc, char **argv){
     char temp[MAX_TEMP];
     int graph[MAX_NODES][MAX_NODES];
