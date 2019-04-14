@@ -12,6 +12,7 @@
 
 
 
+
 /************************************************************************
  * Prints received input. For debugging only.
  * 
@@ -34,11 +35,33 @@ void print_input(int graph[][MAX_NODES], int num_nodes, int width){
 
 
 
+
+
+
+/*************************************************************************
+ * Main problem function.
+ * Uses DFS to travel through each arc of a given node, 
+ *  coloring them if they are uncolored, and checking
+ *  wether their color is the correct one if they are.
+ *  When it finds a wrongly colored node, it returns 0.
+ * 
+ * Parameters:
+ *      graph[][MAX_NODES]: Adjacency matrix containg graph edge weights;
+ *      num_nodes: Number of nodes of the graph;
+ *      current: Which node is the starting point in travel;
+ *      color: Integer that represents which color the node should be;
+ *      colors[]: Array holding all the colors of every node.
+ * 
+ * Returns:
+ *      0 if a node with the wrong color was found (not a bipartite
+ *       graph), 1 otherwise.
+ * 
+ *************************************************************************/
 int dfs(int graph[][MAX_NODES], int num_nodes, int current, int color, int colors[]){
     /*Is it colored?*/
     if ( colors[current]!=0 )
     {
-        if ( colors[current]==color ) return 1;
+        if ( colors[current]==color ) return 1; //Color is correct
         else return 0; //Graph is not bipartite
     }
     /*Color it*/
@@ -48,6 +71,7 @@ int dfs(int graph[][MAX_NODES], int num_nodes, int current, int color, int color
         /*Travel through each arc*/
         for (int j=0; j<num_nodes; j++){
             if (graph[current][j] == 0) continue;
+            /*Expect the next node to be the opposite color (if RED, then BLUE)*/
             if ( dfs(graph, num_nodes, j, color==RED?BLUE:RED, colors)==0 ) return 0;
         }
 
@@ -102,14 +126,14 @@ int main(int argc, char **argv){
                 colors[k] = 0;
             }
             
+            /*Only need one wrong case to prove it's not bipartite*/
             if ( dfs(graph, num_nodes, i, RED, colors)==0 ){
                 flag = 1;
                 break;
             }
         }
 
-        if (flag == 0)
-            printf("True\n");
+        if (flag == 0) printf("True\n");
         else printf("False\n");
     }
 
