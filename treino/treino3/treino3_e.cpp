@@ -48,23 +48,28 @@ void print_input(int graph1[][MAX_NODES], int graph2[][MAX_NODES], int num_nodes
 
 
 
-/******************************************************************************************
+/********************************************************************************************
  * Main problem function.
  * Adapted from pseudocode: https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
  * 
  * Parameters:
- *      graph[][MAX_NODES]: Adjacency matrix containg graph edge weights;
+ *      graph1[][MAX_NODES]: Adjacency matrix containg graph edge weights of first gondola;
+ *      graph2[][MAX_NODES]: Adjacency matrix containg graph edge weights of second gondola;
  *      num_nodes: Number of nodes of the graph;
  * 
- ******************************************************************************************/
-void floyd_warshall(int graph[][MAX_NODES], int num_nodes){
+ ********************************************************************************************/
+void floyd_warshall(int graph1[][MAX_NODES], int graph2[][MAX_NODES], int num_nodes){
     /*Set the diagonal to 0*/
-    for (int i=0; i<num_nodes; i++) graph[i][i] = 0;
+    for (int i=0; i<num_nodes; i++){
+        graph1[i][i] = 0;
+        graph2[i][i] = 0;
+    }
 
     /*Set 0 values to infinity (INT_MAX)*/
     for(int i=0; i<num_nodes; i++){
         for(int j=0; j<num_nodes; j++){
-            if (i!=j && graph[i][j] == 0) graph[i][j] = __INT_MAX__;
+            if (i!=j && graph1[i][j] == 0) graph1[i][j] = __INT_MAX__;
+            if (i!=j && graph2[i][j] == 0) graph2[i][j] = __INT_MAX__;
         }
     }
 
@@ -73,8 +78,11 @@ void floyd_warshall(int graph[][MAX_NODES], int num_nodes){
         for (int i=0; i<num_nodes; i++){
             for (int j=0; j<num_nodes; j++){
                 /*Do not do calculation if any of the right side values are INT_MAX, overflow problems*/
-                if (graph[i][j] > graph[i][k] + graph[k][j] && graph[i][k]!=__INT_MAX__ && graph[k][j] != __INT_MAX__)
-                    graph[i][j] = graph[i][k] + graph[k][j];
+                if (graph1[i][j] > graph1[i][k] + graph1[k][j] && graph1[i][k]!=__INT_MAX__ && graph1[k][j] != __INT_MAX__)
+                    graph1[i][j] = graph1[i][k] + graph1[k][j];
+                /*Do not do calculation if any of the right side values are INT_MAX, overflow problems*/
+                if (graph2[i][j] > graph2[i][k] + graph2[k][j] && graph2[i][k]!=__INT_MAX__ && graph2[k][j] != __INT_MAX__)
+                    graph2[i][j] = graph2[i][k] + graph2[k][j];
             }
         }
     }
@@ -145,8 +153,7 @@ int main(int argc, char **argv){
         //print_input(graph1, graph2, num_nodes, 2);
 
         /*Use algorithm on both graphs*/
-        floyd_warshall(graph1, num_nodes);
-        floyd_warshall(graph2, num_nodes);
+        floyd_warshall(graph1, graph2, num_nodes);
 
         //print_input(graph1, graph2, num_nodes, 3);
 
