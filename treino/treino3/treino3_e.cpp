@@ -98,10 +98,11 @@ int main(int argc, char **argv){
     /*Get number of test cases*/
     fgets(temp, MAX_TEMP, stdin);
     num_cases = atoi(temp);
-    /*Blank line*/
-    fgets(temp, MAX_TEMP, stdin);
 
     for (int t=0; t<num_cases; t++){
+        /*Blank line*/
+        fgets(temp, MAX_TEMP, stdin);
+
         /*Set both graphs to 0*/
         for (int i=0; i<MAX_NODES; i++){
             for (int j=0; j<MAX_NODES; j++){
@@ -160,6 +161,7 @@ int main(int argc, char **argv){
 
         if (are_diff) printf("NO\n");
         else printf("YES\n");
+        if (t+1 < num_cases) printf("\n");
     }
 
     return 0;
