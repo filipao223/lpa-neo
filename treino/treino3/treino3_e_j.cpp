@@ -119,7 +119,7 @@ int main(int argc, char **argv){
             }
         }
 
-        /*First gondola*/
+        /*First gondola/bus*/
         fgets(temp, MAX_TEMP, stdin);
         int temp_data = atoi(temp);
 
@@ -134,7 +134,7 @@ int main(int argc, char **argv){
             graph1[source][target] = 1;
         }
 
-        /*Second gondola*/
+        /*Second gondola/bus*/
         fgets(temp, MAX_TEMP, stdin);
         temp_data = atoi(temp);
 
