@@ -4,7 +4,7 @@
 #include <math.h>
 
 #define MAX_TEMP 1024
-#define MAX_NODES 300
+#define MAX_NODES 201
 
 
 
@@ -17,17 +17,16 @@
  *      num_nodes: Number of nodes of the graph.
  * 
  * Return:
- *      1 if set is empty, -1 otherwise;
+ *      true if set is empty, false otherwise;
  *************************************************************/
-int set_is_empty(int node_set[], int num_nodes){
-    int is_empty = 1; //Assume it's empty
+bool set_is_empty(int node_set[], int num_nodes){
     for (int i=0; i<num_nodes; i++){
         /*If node wasn't yet visited*/
-        if (node_set[i] != -1){
-            return -1;
+        if (node_set[i] == 1){
+            return false;
         }
     }
-    return is_empty;
+    return true;
 }
 
 
@@ -111,10 +110,10 @@ void dijkstra(int graph[][MAX_NODES], int num_nodes, int target){
 
     /*Create a set containing all nodes, will be unvisited nodes*/
     int node_set[num_nodes];
-    for (int i=0; i<num_nodes; i++) node_set[i] = i;
+    for (int i=0; i<num_nodes; i++) node_set[i] = 1;
 
     /*While set containg unvisited nodes is not empty*/
-    while (set_is_empty(node_set, num_nodes) != 1){
+    while ( !set_is_empty(node_set, num_nodes) ){
         /*Find node with smallest distance in node_set*/
         int smallest = smallest_dist(graph, node_set, num_nodes);
 
@@ -181,7 +180,7 @@ int main(int argc, char **argv){
     //print_input(graph, num_nodes, target, width);
 
     /*Use algorithm*/
-    dijkstra(graph, num_nodes, target);
+    dijkstra(graph, num_nodes, target-1);
 
     /*Print solution*/
     printf("%d\n", graph[target-1][target-1]);
