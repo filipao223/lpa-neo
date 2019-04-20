@@ -134,7 +134,7 @@ void dijkstra(int graph[][MAX_NODES], int num_nodes, int source, int target){
 
     /*Create a set containing all nodes, will be unvisited nodes*/
     int node_set[num_nodes];
-    for (int i=0; i<num_nodes; i++) node_set[i] = i;
+    for (int i=0; i<num_nodes; i++) node_set[i] = 1;
 
     /*While set containg unvisited nodes is not empty*/
     while (set_is_empty(node_set, num_nodes) != 1){
@@ -165,7 +165,7 @@ void dijkstra(int graph[][MAX_NODES], int num_nodes, int source, int target){
 
 
 /********************************************************************
- * Main function, reads the graph input as a file passed as parameter
+ * Main function, reads the graph input from stdin
  * 
  * Input format is as follows:
  *  <source node>
@@ -173,21 +173,6 @@ void dijkstra(int graph[][MAX_NODES], int num_nodes, int source, int target){
  *  <adjacency matrix>
  ********************************************************************/
 int main(int argc, char **argv){
-    /*Checks if an argument was supplied*/
-    if (argc != 2){
-        printf("Argument error\n");
-        exit(0);
-    }
-
-    /*Opens input file*/
-    FILE *input = fopen(argv[1], "r");
-
-    /*Checks if file opened succesfully (does not check content)*/
-    if (input == NULL){
-        printf("Error opening file\n");
-        exit(1);
-    }
-
     char temp[MAX_TEMP];
     int graph[MAX_NODES][MAX_NODES];
     int num_nodes=0, i=0, j=0;
@@ -195,13 +180,13 @@ int main(int argc, char **argv){
     int maxval; //For nice printing only, ignore
 
     /*Source and target nodes*/
-    fgets(temp, MAX_TEMP, input);
+    fgets(temp, MAX_TEMP, stdin);
     source = atoi(temp);
-    fgets(temp, MAX_TEMP, input);
+    fgets(temp, MAX_TEMP, stdin);
     target = atoi(temp);
 
     /*Read actual graph*/
-    while(fgets(temp, MAX_TEMP, input) != NULL){
+    while(fgets(temp, MAX_TEMP, stdin) != NULL){
         char *token = strtok(temp, " ");
         j=0;
         while (token != NULL){
