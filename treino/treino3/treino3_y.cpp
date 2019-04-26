@@ -137,8 +137,8 @@ int bfs(int **graph, int num_nodes, int current, int visited[]){
         /*For each edge that goes out of current node*/
         int power = 0;
         for (int j=0; j<num_nodes; j++){
-            /*If a connection actually exists and it's an enemy base*/
-            if (graph[current][j] != 0 && graph[j][j] < 0)
+            /*If a connection actually exists and it's an enemy base (both are)*/
+            if (graph[current][j] != 0 && graph[j][j] < 0 && graph[current][current] < 0)
             {
                 /*Add its power count*/
                 power += abs(graph[j][j]);
@@ -147,10 +147,15 @@ int bfs(int **graph, int num_nodes, int current, int visited[]){
                 if ( visited[j] == 0 ) bfs_queue.push(j);
                 
             }
+
+            /*If we have enemy bases to visit and current is the first node, push node*/
+            else if(current == 0 && graph[current][j] != 0 && graph[j][j] < 0){
+                if ( visited[j] == 0 ) bfs_queue.push(j);
+            }
         }
 
         /*If local power is the best yet, save it*/
-        if (power > best_value){
+        if (power > best_value && power != 0){
             best_value = power;
             best_node = current;
         }
