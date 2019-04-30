@@ -158,5 +158,14 @@ int main(int argc, char **argv){
 
     printf("Found %d components\n", num_components);
 
+    printf("Results:\n");
+    for (int i=0; i<num_components; i++){
+        printf("Component %d: ", i+1);
+        for (auto value: components[i]){
+            printf("%d ", value);
+        }
+        printf("\n");
+    }
+
     return 0;
 }
