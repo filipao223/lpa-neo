@@ -16,7 +16,22 @@ int num_components=0;
 
 
 
+
+/****************************************
+ * Returns the smallest of two numbers
+ * 
+ * Parameters:
+ *      a: First number to compare;
+ *      b: Second number to compare.
+ * 
+ * Returns:
+ *      The smallest of the two numbers.
+ * 
+ ****************************************/
 int min(int a, int b){ return a>b?b:a; }
+
+
+
 
 
 
@@ -48,6 +63,22 @@ void print_input(int graph[][MAX_NODES], int num_nodes, int source, int target, 
 
 
 
+
+/********************************************************************************************************************************************************
+ * Tarjan's algorithm to find strongly connected components in a graph.
+ * Adapted from pseudocode: https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
+ * 
+ * Parameters:
+ *      graph[][MAX_NODES]: Adjacency matrix containg graph edge weights;
+ *      num_nodes: Number of nodes of the graph;
+ *      current: Current node being evaluated in the recursion;
+ *      S: Stack that stores which nodes are being evaluated;
+ *      index[]: Array that represents when an index (i) node was visited;
+ *      lowlink[]: Array that stores an index (i) node's lowest point in the graph;
+ *      onStack[]: Array that represents whether current node is on the stack or not;
+ *      strong_component[]: Array of sets that stores the components.
+ * 
+ ********************************************************************************************************************************************************/
 void tarjan(int graph[][MAX_NODES], int num_nodes, int current, stack <int> S,int index[], int lowlink[], bool onStack[], set <int> strong_component[]){
     // Set the depth index for v to the smallest unused index
     index[current] = index_global;
@@ -88,6 +119,8 @@ void tarjan(int graph[][MAX_NODES], int num_nodes, int current, stack <int> S,in
         num_components+=1;
     }
 }
+
+
 
 
 
@@ -156,8 +189,8 @@ int main(int argc, char **argv){
         }
     }
 
+    /*Print results*/
     printf("Found %d components\n", num_components);
-
     printf("Results:\n");
     for (int i=0; i<num_components; i++){
         printf("Component %d: ", i+1);
