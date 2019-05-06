@@ -11,8 +11,6 @@
 
 
 using namespace std;
-int index_global = 0;
-int num_components=0;
 
 
 
@@ -79,12 +77,12 @@ void print_input(int graph[][MAX_NODES], int num_nodes, int source, int target, 
  *      strong_component[]: Array of sets that stores the components.
  * 
  ********************************************************************************************************************************************************/
-void tarjan(int graph[][MAX_NODES], int num_nodes, int current, stack <int> S,int index[], int lowlink[], bool onStack[], set <int> strong_component[]){
+void tarjan(int graph[][MAX_NODES], int num_nodes, int current, stack <int> *S,int index[], int lowlink[], bool onStack[], set <int> strong_component[], int *index_global, int *num_components){
     // Set the depth index for v to the smallest unused index
-    index[current] = index_global;
-    lowlink[current] = index_global;
-    index_global += 1;
-    S.push(current);
+    index[current] = *index_global;
+    lowlink[current] = *index_global;
+    (*index_global) += 1;
+    (*S).push(current);
     onStack[current] = true;
 
     // Consider successors of v
@@ -93,7 +91,7 @@ void tarjan(int graph[][MAX_NODES], int num_nodes, int current, stack <int> S,in
         if (graph[current][j] != 0){
             if (index[j] == -1){
                 // Successor w has not yet been visited; recurse on it
-                tarjan(graph, num_nodes, j, S, index, lowlink, onStack, strong_component);
+                tarjan(graph, num_nodes, j, S, index, lowlink, onStack, strong_component, index_global, num_components);
                 lowlink[current] = min(lowlink[current], lowlink[j]);
             }
             else if (onStack[j]){
@@ -110,13 +108,13 @@ void tarjan(int graph[][MAX_NODES], int num_nodes, int current, stack <int> S,in
     int j;
     if (lowlink[current] == index[current]){
         do{
-            j = S.top();
-            S.pop();
+            j = (*S).top();
+            (*S).pop();
             onStack[j] = false;
-            strong_component[num_components].insert(j);
+            strong_component[(*num_components)].insert(j);
         } while (j != current);
 
-        num_components+=1;
+        (*num_components)+=1;
     }
 }
 
@@ -176,6 +174,9 @@ int main(int argc, char **argv){
         onStack[i] = false;
     }
 
+    int index_global=0;
+    int num_components=0;
+
     /*Empty stack*/
     stack <int> S;
 
@@ -185,7 +186,7 @@ int main(int argc, char **argv){
     /*Use algorithm*/
     for (int i=0; i<num_nodes; i++){
         if (index[i]==-1){
-            tarjan(graph, num_nodes, i, S, index, lowlink, onStack, components);
+            tarjan(graph, num_nodes, i, &S, index, lowlink, onStack, components, &index_global, &num_components);
         }
     }
 
