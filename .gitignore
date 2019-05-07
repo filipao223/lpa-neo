@@ -60,6 +60,7 @@ dkms.conf
 *.pdf
 !consulta.pdf
 !stl-containers.pdf
+!c-reference.pdf
 
 ############################------------------------------------Intellij IDE
 
