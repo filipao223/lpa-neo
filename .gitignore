@@ -59,6 +59,8 @@ dkms.conf
 ###########################--------------------------- PDFs
 *.pdf
 !consulta.pdf
+!stl-containers.pdf
+!c-reference.pdf
 !problemaA.pdf
 !problemaB.pdf
 !RelatorioProblema2.pdf
